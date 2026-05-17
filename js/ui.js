@@ -187,7 +187,19 @@ function showLobby(code, players) {
 
   const readyBtn = document.getElementById('lobby-ready-btn');
   readyBtn.style.display = '';
-  readyBtn.onclick = () => sendToServer({ type: 'player_ready' });
+  readyBtn.onclick = () => {
+    sendToServer({ type: 'player_ready' });
+    // Feedback visual imediato (servidor confirma/corrige via player_update)
+    const nowReady = !readyBtn.classList.contains('active');
+    readyBtn.textContent = nowReady ? '✓ Pronto!' : 'Marcar como Pronto';
+    readyBtn.classList.toggle('active', nowReady);
+  };
+
+  // Event delegation para botões de kick (evita problemas com onclick inline)
+  document.getElementById('lobby-player-list').onclick = e => {
+    const btn = e.target.closest('.btn-kick');
+    if (btn) sendToServer({ type: 'kick_player', targetIdx: +btn.dataset.idx });
+  };
 
   document.getElementById('copy-code-btn').onclick = () => {
     navigator.clipboard.writeText(code).catch(() => {});
@@ -227,7 +239,7 @@ function updateLobbyPlayers(players) {
 
     let rightHtml = '';
     if (isHost && !isMe && i !== 0) {
-      rightHtml = `<button class="btn-kick" onclick="sendToServer({type:'kick_player',targetIdx:${i}})" title="Remover jogador">✕</button>`;
+      rightHtml = `<button class="btn-kick" data-idx="${i}" title="Remover jogador">✕</button>`;
     }
 
     card.innerHTML = `<div class="lp-left">${leftHtml}</div><div class="lp-right">${rightHtml}</div>`;

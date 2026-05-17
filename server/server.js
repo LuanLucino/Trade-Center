@@ -33,7 +33,7 @@ class Room {
   }
 
   checkReady() {
-    const allReady = this.players.length >= 2 && this.players.every(p => p.ready);
+    const allReady = this.players.length >= 1 && this.players.every(p => p.ready);
     if (allReady) this.startCountdown();
     else          this.cancelCountdown();
   }
