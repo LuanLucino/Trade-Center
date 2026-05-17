@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Center</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Setup Screen -->
+  <div id="setup-screen" class="screen active">
+    <div class="setup-card">
+      <div class="logo">🏙️</div>
+      <h1>Trade Center</h1>
+      <p class="subtitle">Jogo de Tabuleiro</p>
+
+      <div class="form-group">
+        <label>Número de Jogadores</label>
+        <div class="player-count-btns">
+          <button class="count-btn active" data-count="2">2</button>
+          <button class="count-btn" data-count="3">3</button>
+          <button class="count-btn" data-count="4">4</button>
+        </div>
+      </div>
+
+      <div id="player-names-section"></div>
+
+      <button id="start-game-btn" class="btn-primary">▶ Começar Jogo</button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen">
+    <div id="game-container">
+
+      <div id="board-wrapper">
+        <div id="board"></div>
+        <div id="legend">
+          <div class="legend-item"><span class="leg-color" style="background:#0f3460"></span> Casa normal</div>
+          <div class="legend-item"><span class="leg-color" style="background:#1a6b3a;border-color:#2ecc71"></span> Bônus</div>
+          <div class="legend-item"><span class="leg-color" style="background:#6b1a1a;border-color:#e74c3c"></span> Penalidade</div>
+          <div class="legend-item"><span class="leg-color" style="background:#4a1a6b;border-color:#9b59b6"></span> Teleporte</div>
+          <div class="legend-item"><span class="leg-color" style="background:#6b5a1a;border-color:#f39c12"></span> Perde a vez</div>
+          <div class="legend-item"><span class="leg-color" style="background:#1a5a6b;border-color:#1abc9c"></span> Role de novo</div>
+        </div>
+      </div>
+
+      <div id="sidebar">
+        <h2 class="sidebar-title">🏙️ Trade Center</h2>
+
+        <div id="players-panel"></div>
+
+        <div id="dice-area">
+          <div id="dice"><span id="dice-face">?</span></div>
+          <button id="roll-btn" class="btn-primary">🎲 Rolar Dado</button>
+        </div>
+
+        <div id="log-area">
+          <h3>Eventos</h3>
+          <div id="game-log"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Win Screen -->
+  <div id="win-screen" class="screen">
+    <div class="win-card">
+      <div class="trophy">🏆</div>
+      <h1>Missão Cumprida!</h1>
+      <p id="winner-text"></p>
+      <button id="play-again-btn" class="btn-primary">↩ Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
