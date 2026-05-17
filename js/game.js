@@ -65,8 +65,12 @@ async function onRoll() {
   if (p.skipNext) {
     p.skipNext = false;
     if (isOnline) sendToServer({ type: 'game_action', action: 'skip' });
+    openRollOverlay(p.name, p.color);
+    await delay(300);
+    setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
     log(`⏸ ${p.name} perdeu a vez!`, 'skip');
-    await delay(700);
+    showOverlayContinue();
+    await waitForRollContinue();
     state.rolling = false;
     nextTurn();
     return;
@@ -79,13 +83,21 @@ async function onRoll() {
 
 // processTurn is shared between local and remote-action paths.
 async function processTurn(val) {
+  const p = state.players[state.current];
+  openRollOverlay(p.name, p.color);
+
   await animateDice(val);
-  log(`${state.players[state.current].name} tirou ${DICE_FACES[val-1]} (${val})`, 'move');
+
+  showOverlayRollValue(val);
+  log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move');
 
   const again = await applyMove(state.current, val);
   state.rolling = false;
 
   if (!state.over) {
+    const isMyTurn = !isOnline || myIdx === state.current;
+    showOverlayContinue();
+    await waitForRollContinue(!isMyTurn);
     if (again) updateUI(true);
     else       nextTurn();
   }
@@ -100,6 +112,7 @@ async function applyMove(pIdx, steps) {
 
   if (p.pos === BOARD_SIZE - 1) {
     p.finished = true;
+    setOverlayEvent(`🏆 ${p.name} chegou ao FIM!`, 'finish');
     log(`🏆 ${p.name} chegou ao FIM!`, 'finish');
     refreshTokens();
     refreshPlayersPanel();
@@ -118,15 +131,22 @@ async function applySpecial(pIdx, sp, landedOn) {
 
   switch (sp.type) {
     case 'bonus': {
+      setOverlayEvent(`✅ ${sp.desc}`, 'bonus');
       log(`✅ ${p.name}: ${sp.desc}`, 'bonus');
       const dest = Math.min(landedOn + sp.value, BOARD_SIZE - 1);
       p.pos = dest;
       refreshTokens();
       refreshPlayersPanel();
-      if (dest === BOARD_SIZE - 1) { p.finished = true; log(`🏆 ${p.name} chegou ao FIM!`, 'finish'); checkWin(); }
+      if (dest === BOARD_SIZE - 1) {
+        p.finished = true;
+        setOverlayEvent(`🏆 ${p.name} chegou ao FIM!`, 'finish');
+        log(`🏆 ${p.name} chegou ao FIM!`, 'finish');
+        checkWin();
+      }
       return false;
     }
     case 'penalty': {
+      setOverlayEvent(`❌ ${sp.desc}`, 'penalty');
       log(`❌ ${p.name}: ${sp.desc}`, 'penalty');
       p.pos = Math.max(0, landedOn + sp.value);
       refreshTokens();
@@ -134,6 +154,7 @@ async function applySpecial(pIdx, sp, landedOn) {
       return false;
     }
     case 'teleport': {
+      setOverlayEvent(`✈️ ${sp.desc}`, 'teleport');
       log(`✈️ ${p.name}: ${sp.desc}`, 'teleport');
       p.pos = sp.value;
       refreshTokens();
@@ -141,12 +162,14 @@ async function applySpecial(pIdx, sp, landedOn) {
       return false;
     }
     case 'skip': {
+      setOverlayEvent(`⛔ ${sp.desc}`, 'skip');
       log(`⛔ ${p.name}: ${sp.desc}`, 'skip');
       p.skipNext = true;
       refreshPlayersPanel();
       return false;
     }
     case 'rollagain': {
+      setOverlayEvent(`🎲 ${sp.desc}`, 'rollagain');
       log(`🎲 ${p.name}: ${sp.desc}`, 'bonus');
       return true;
     }
@@ -169,6 +192,7 @@ function checkWin() {
   if (!state.players.every(p => p.finished)) return;
   state.over = true;
   setTimeout(() => {
+    closeRollOverlay();
     showWinScreen(
       state.players.map(p => p.name).join(', ') +
       ' chegaram juntos ao fim!\nMissão cumprida em equipe! 🎉'

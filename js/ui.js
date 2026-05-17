@@ -29,28 +29,77 @@ const DOT_PATTERNS = {
   6: [1,0,1, 1,0,1, 1,0,1],
 };
 
-function setDiceFace(val) {
-  const cells = document.querySelectorAll('#dice .dice-dot-grid span');
+function setDiceFace(val, sel = '#dice') {
+  const cells = document.querySelectorAll(sel + ' .dice-dot-grid span');
   const pat   = DOT_PATTERNS[val] || DOT_PATTERNS[1];
   cells.forEach((c, i) => c.classList.toggle('dot', !!pat[i]));
 }
 
-// ── Dice animation ───────────────────────────────────────────
+// ── Dice animation (runs inside roll overlay) ────────────────
 function animateDice(final) {
   return new Promise(resolve => {
-    const box = document.getElementById('dice');
+    const box = document.getElementById('roc-dice');
     let ticks = 0;
     const id = setInterval(() => {
-      setDiceFace(Math.floor(Math.random() * 6) + 1);
-      if (++ticks >= 10) clearInterval(id);
-    }, 64);
+      setDiceFace(Math.floor(Math.random() * 6) + 1, '#roc-dice');
+      if (++ticks >= 12) clearInterval(id);
+    }, 58);
 
     box.classList.add('rolling');
     box.addEventListener('animationend', () => {
       box.classList.remove('rolling');
-      setDiceFace(final);
+      setDiceFace(final, '#roc-dice');
+      setDiceFace(final, '#dice');
       resolve();
     }, { once: true });
+  });
+}
+
+// ── Roll overlay ─────────────────────────────────────────────
+function openRollOverlay(playerName, playerColor) {
+  const av = document.getElementById('roc-avatar');
+  av.textContent       = playerName[0].toUpperCase();
+  av.style.background  = playerColor;
+  document.getElementById('roc-player-name').textContent = playerName;
+  document.getElementById('roc-value').textContent       = '';
+  document.getElementById('roc-event-box').style.display = 'none';
+  document.getElementById('roc-continue').style.display  = 'none';
+  setDiceFace(Math.ceil(Math.random() * 6), '#roc-dice');
+  document.getElementById('roll-overlay').classList.add('visible');
+}
+
+function showOverlayRollValue(val) {
+  document.getElementById('roc-value').textContent = val;
+}
+
+function setOverlayEvent(text, type) {
+  const box  = document.getElementById('roc-event-box');
+  const span = document.getElementById('roc-event-text');
+  if (!box || !span) return;
+  span.textContent = text;
+  box.className    = 'roc-event-box' + (type ? ' ' + type : '');
+  box.style.display = '';
+}
+
+function showOverlayContinue() {
+  document.getElementById('roc-continue').style.display = '';
+}
+
+function closeRollOverlay() {
+  document.getElementById('roll-overlay').classList.remove('visible');
+}
+
+function waitForRollContinue(autoClose = false) {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      closeRollOverlay();
+      resolve();
+    };
+    document.getElementById('roc-continue').onclick = finish;
+    if (autoClose) setTimeout(finish, 2800);
   });
 }
 

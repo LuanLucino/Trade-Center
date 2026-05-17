@@ -93,8 +93,12 @@ async function applyRemoteAction(msg) {
   const p = state.players[state.current];
   if (msg.action === 'skip') {
     p.skipNext = false;
+    openRollOverlay(p.name, p.color);
+    await delay(300);
+    setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
     log(`⏸ ${p.name} perdeu a vez!`, 'skip');
-    await delay(700);
+    showOverlayContinue();
+    await waitForRollContinue(true);
     state.rolling = false;
     nextTurn();
     return;
