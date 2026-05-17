@@ -20,13 +20,16 @@ const SPECIALS = {
 
 // Board visual dimensions — derived once, shared by board.js
 const BD = (() => {
-  const w=900, h=560, padX=70, padY=88, sqSz=72, rows=4, cols=10;
+  const w=900, h=600, padX=70, padY=56, sqSz=64, rows=4, cols=10;
   const xStep = (w - 2*padX) / (cols - 1);
   const yStep = (h - 2*padY) / (rows - 1);
+  // strokeW is tied to sqSz, NOT yStep — keeps the track narrow
+  // so the gap between rows (yStep - strokeW ≈ 84px) stays visible
+  const strokeW = sqSz + 14;
   return {
     w, h, padX, padY, sqSz, rows, cols, xStep, yStep,
-    strokeW: Math.round(yStep * 0.93),
-    curveR:  yStep / 2,
+    strokeW,
+    curveR: yStep / 2,
   };
 })();
 

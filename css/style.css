@@ -261,7 +261,7 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 /* ── Squares ── */
 .square {
-  position: absolute; width: 72px; height: 72px; border-radius: 50%;
+  position: absolute; width: 64px; height: 64px; border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: default; user-select: none; border: 2.5px solid transparent;
   transition: transform 0.14s;
