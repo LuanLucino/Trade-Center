@@ -35,7 +35,10 @@ const BD = (() => {
 
 // Custom audio files per square index (path relative to project root)
 const SQUARE_SOUNDS = {
+   4: 'sounds/house4.wav',
   11: 'sounds/house11.wav',
+  26: 'sounds/house26.wav',
+  29: 'sounds/house29.wav',
 };
 
 // WebSocket server URL.
