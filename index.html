@@ -4,16 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trade Center</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- Setup Screen -->
-  <div id="setup-screen" class="screen active">
-    <div class="setup-card">
-      <div class="logo">🏙️</div>
+  <!-- ── Mode Selection ── -->
+  <div id="mode-screen" class="screen active">
+    <div class="card">
+      <div class="mode-logo">🏙️</div>
       <h1>Trade Center</h1>
-      <p class="subtitle">Jogo de Tabuleiro</p>
+      <p class="sub">Jogo de Tabuleiro</p>
+      <div class="mode-btns">
+        <button class="mode-btn" id="btn-local">
+          <span class="mode-icon">🖥️</span>
+          <span class="mode-text">
+            <span class="mode-label">Local</span>
+            <span class="mode-desc">2–4 jogadores na mesma tela, turnos alternados</span>
+          </span>
+        </button>
+        <button class="mode-btn" id="btn-online">
+          <span class="mode-icon">🌐</span>
+          <span class="mode-text">
+            <span class="mode-label">Online (Coop)</span>
+            <span class="mode-desc">Jogue com amigos em máquinas diferentes via sala</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Local Setup ── -->
+  <div id="setup-screen" class="screen">
+    <div class="card">
+      <h1>Jogo Local</h1>
+      <p class="sub">Configure os jogadores</p>
 
       <div class="form-group">
         <label>Número de Jogadores</label>
@@ -24,20 +48,73 @@
         </div>
       </div>
 
-      <div id="player-names-section"></div>
+      <div class="form-group">
+        <label>Nomes</label>
+        <div id="player-names-section"></div>
+      </div>
 
-      <button id="start-game-btn" class="btn-primary">▶ Começar Jogo</button>
+      <button id="start-local-btn" class="btn-primary">▶ Começar</button>
+      <button id="back-to-mode-from-setup" class="btn-secondary">← Voltar</button>
     </div>
   </div>
 
-  <!-- Game Screen -->
+  <!-- ── Online Config ── -->
+  <div id="online-screen" class="screen">
+    <div class="card">
+      <h1>🌐 Online</h1>
+      <p class="sub">Configure a conexão</p>
+
+      <div class="online-section">
+        <label>Seu Nome</label>
+        <input id="online-name" type="text" placeholder="Seu apelido" maxlength="20">
+      </div>
+
+      <div class="online-section">
+        <label>URL do Servidor WebSocket</label>
+        <input id="ws-url" type="text" placeholder="ws://localhost:8080">
+      </div>
+
+      <button id="btn-create-room" class="btn-primary">🏠 Criar Sala</button>
+
+      <div class="divider">ou entre em uma sala existente</div>
+
+      <div class="join-row">
+        <input id="room-code-input" type="text" placeholder="Código da sala (ex: A1B2C3)" maxlength="6" style="text-transform:uppercase">
+        <button id="btn-join-room" class="btn-primary">Entrar</button>
+      </div>
+
+      <p id="online-status" class="online-status"></p>
+      <button id="back-to-mode-from-online" class="btn-secondary">← Voltar</button>
+    </div>
+  </div>
+
+  <!-- ── Lobby ── -->
+  <div id="lobby-screen" class="screen">
+    <div class="card">
+      <h1>🏠 Sala</h1>
+      <p class="sub">Compartilhe o código com seus amigos</p>
+
+      <div class="room-code-display">
+        <span id="display-room-code">------</span>
+        <button id="copy-code-btn">Copiar</button>
+      </div>
+
+      <div id="lobby-player-list" class="lobby-player-list"></div>
+      <p id="lobby-status" class="online-status"></p>
+
+      <button id="btn-start-online" class="btn-primary" style="display:none">▶ Iniciar Jogo</button>
+      <button id="back-to-mode-from-lobby" class="btn-secondary">← Sair da Sala</button>
+    </div>
+  </div>
+
+  <!-- ── Game ── -->
   <div id="game-screen" class="screen">
     <div id="game-container">
 
       <div id="board-wrapper">
         <div id="board"></div>
         <div id="legend">
-          <div class="legend-item"><span class="leg-color" style="background:#112050;border-color:#1e3a80"></span> Casa normal</div>
+          <div class="legend-item"><span class="leg-color" style="background:#112050;border-color:#1e3a80"></span> Normal</div>
           <div class="legend-item"><span class="leg-color" style="background:#0e4a28;border-color:#27ae60"></span> Bônus</div>
           <div class="legend-item"><span class="leg-color" style="background:#4a0e0e;border-color:#c0392b"></span> Penalidade</div>
           <div class="legend-item"><span class="leg-color" style="background:#30104a;border-color:#8e44ad"></span> Teleporte</div>
@@ -65,16 +142,20 @@
     </div>
   </div>
 
-  <!-- Win Screen -->
+  <!-- ── Win ── -->
   <div id="win-screen" class="screen">
-    <div class="win-card">
+    <div class="card">
       <div class="trophy">🏆</div>
       <h1>Missão Cumprida!</h1>
       <p id="winner-text"></p>
-      <button id="play-again-btn" class="btn-primary">↩ Jogar Novamente</button>
+      <button id="play-again-btn" class="btn-primary">↩ Menu Principal</button>
     </div>
   </div>
 
-  <script src="game.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>
