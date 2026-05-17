@@ -167,14 +167,24 @@ function showOverlayCards(cards) {
 function waitForRollContinue(autoClose = false) {
   return new Promise(resolve => {
     let done = false;
+    const timerBar = document.getElementById('roc-timer-bar');
     const finish = () => {
       if (done) return;
       done = true;
+      if (timerBar) timerBar.style.display = 'none';
       closeRollOverlay();
       resolve();
     };
     document.getElementById('roc-continue').onclick = finish;
-    if (autoClose) setTimeout(finish, 2800);
+    if (autoClose) { setTimeout(finish, 2800); return; }
+
+    // 10-second auto-advance fallback with animated progress bar
+    if (timerBar) {
+      const fill = timerBar.querySelector('.roc-timer-fill');
+      if (fill) { fill.style.animation = 'none'; void fill.offsetWidth; fill.style.animation = ''; }
+      timerBar.style.display = '';
+    }
+    setTimeout(finish, 10000);
   });
 }
 
