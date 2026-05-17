@@ -156,6 +156,20 @@ function highlightSquare(idx) {
   sq.addEventListener('animationend', () => sq.classList.remove('sq-highlight'), { once: true });
 }
 
+// Scale the board to fill its wrapper without scrollbar
+function fitBoard() {
+  const wrapper = document.getElementById('board-wrapper');
+  const board   = document.getElementById('board');
+  if (!wrapper || !board) return;
+  const legend  = document.getElementById('legend');
+  const legendH = legend ? legend.offsetHeight + 10 : 44;
+  const aw = wrapper.clientWidth;
+  const ah = wrapper.clientHeight - legendH;
+  if (aw <= 0 || ah <= 0) return;
+  const scale = Math.min(aw / BD.w, ah / BD.h);
+  board.style.zoom = Math.max(0.3, scale).toFixed(4);
+}
+
 // Updates token positions (CSS transitions handle the animation).
 function refreshTokens() {
   // Group players sharing a square for offset calculation

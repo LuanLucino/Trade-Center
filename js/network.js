@@ -96,7 +96,7 @@ async function applyRemoteAction(msg) {
     openRollOverlay(p.name, p.color);
     await delay(300);
     setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
-    log(`⏸ ${p.name} perdeu a vez!`, 'skip');
+    log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);
     playSound('skip');
     showOverlayContinue();
     await waitForRollContinue(true);

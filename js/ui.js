@@ -6,14 +6,50 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// ── Log ──────────────────────────────────────────────────────
-function log(msg, type = 'system') {
-  const el  = document.getElementById('game-log');
-  const div = document.createElement('div');
-  div.className = `log-entry ${type}`;
-  div.textContent = msg;
-  el.insertBefore(div, el.firstChild);
-  while (el.children.length > 30) el.removeChild(el.lastChild);
+// ── Log (one entry per player, no scrollbar) ─────────────────
+let _playerLastEvents = [];
+let _sysMsg = '';
+
+function initLog() {
+  _playerLastEvents = [];
+  _sysMsg = '';
+  const el = document.getElementById('game-log');
+  if (el) el.innerHTML = '';
+}
+
+function log(msg, type = 'system', pIdx = null) {
+  if (pIdx !== null && pIdx >= 0) {
+    _playerLastEvents[pIdx] = { msg, type };
+  } else {
+    _sysMsg = msg;
+  }
+  _renderLog();
+}
+
+function _renderLog() {
+  const el = document.getElementById('game-log');
+  if (!el) return;
+  el.innerHTML = '';
+  if (_sysMsg) {
+    const d = document.createElement('div');
+    d.className = 'log-entry system';
+    d.textContent = _sysMsg;
+    el.appendChild(d);
+  }
+  _playerLastEvents.forEach((ev, i) => {
+    if (!ev) return;
+    const d = document.createElement('div');
+    d.className = `log-entry ${ev.type}`;
+    const p = typeof state !== 'undefined' && state.players && state.players[i];
+    if (p) {
+      const dot = document.createElement('span');
+      dot.className = 'log-player-dot';
+      dot.style.background = p.color;
+      d.appendChild(dot);
+    }
+    d.appendChild(document.createTextNode(ev.msg));
+    el.appendChild(d);
+  });
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }

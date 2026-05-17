@@ -7,7 +7,6 @@ let state = { players:[], current:0, rolling:false, over:false };
 document.addEventListener('DOMContentLoaded', () => {
   initModeScreen();
   initOnlineScreen();
-  // Sync mute button to saved preference
   if (localStorage.getItem('tc_muted') === '1') {
     const btn = document.getElementById('mute-btn');
     if (btn) { btn.textContent = '🔇'; btn.classList.add('muted'); }
@@ -18,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     myIdx    = null;
     if (socket) { socket.close(); socket = null; }
     showScreen('mode-screen');
+  });
+  window.addEventListener('resize', () => {
+    if (document.getElementById('game-screen')?.classList.contains('active')) fitBoard();
   });
 });
 
@@ -45,7 +47,9 @@ function initGame(names) {
     current: 0, rolling: false, over: false,
   };
   showScreen('game-screen');
+  initLog();
   buildBoard();
+  requestAnimationFrame(fitBoard);
   initTokens();
   refreshTokens();
   buildPlayersPanel();
@@ -73,7 +77,7 @@ async function onRoll() {
     openRollOverlay(p.name, p.color);
     await delay(300);
     setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
-    log(`⏸ ${p.name} perdeu a vez!`, 'skip');
+    log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);
     playSound('skip');
     showOverlayContinue();
     await waitForRollContinue();
@@ -96,7 +100,7 @@ async function processTurn(val) {
   await animateDice(val);
 
   showOverlayRollValue(val);
-  log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move');
+  log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move', state.current);
 
   const again = await applyMove(state.current, val);
   state.rolling = false;
@@ -123,7 +127,7 @@ async function applyMove(pIdx, steps) {
     p.finished = true;
     spawnParticles(p.pos, '#f0c040');
     setOverlayEvent(`🏆 ${p.name} chegou ao FIM!`, 'finish');
-    log(`🏆 ${p.name} chegou ao FIM!`, 'finish');
+    log(`🏆 ${p.name} chegou ao FIM!`, 'finish', pIdx);
     refreshTokens();
     refreshPlayersPanel();
     checkWin();
@@ -150,7 +154,7 @@ async function applySpecial(pIdx, sp, landedOn) {
   switch (sp.type) {
     case 'bonus': {
       setOverlayEvent(`✅ ${sp.desc}`, 'bonus');
-      log(`✅ ${p.name}: ${sp.desc}`, 'bonus');
+      log(`✅ ${p.name}: ${sp.desc}`, 'bonus', pIdx);
       const dest = Math.min(landedOn + sp.value, BOARD_SIZE - 1);
       p.pos = dest;
       refreshTokens();
@@ -162,14 +166,14 @@ async function applySpecial(pIdx, sp, landedOn) {
         p.finished = true;
         spawnParticles(dest, '#f0c040');
         setOverlayEvent(`🏆 ${p.name} chegou ao FIM!`, 'finish');
-        log(`🏆 ${p.name} chegou ao FIM!`, 'finish');
+        log(`🏆 ${p.name} chegou ao FIM!`, 'finish', pIdx);
         checkWin();
       }
       return false;
     }
     case 'penalty': {
       setOverlayEvent(`❌ ${sp.desc}`, 'penalty');
-      log(`❌ ${p.name}: ${sp.desc}`, 'penalty');
+      log(`❌ ${p.name}: ${sp.desc}`, 'penalty', pIdx);
       p.pos = Math.max(0, landedOn + sp.value);
       refreshTokens();
       refreshPlayersPanel();
@@ -180,7 +184,7 @@ async function applySpecial(pIdx, sp, landedOn) {
     }
     case 'teleport': {
       setOverlayEvent(`✈️ ${sp.desc}`, 'teleport');
-      log(`✈️ ${p.name}: ${sp.desc}`, 'teleport');
+      log(`✈️ ${p.name}: ${sp.desc}`, 'teleport', pIdx);
       p.pos = sp.value;
       refreshTokens();
       refreshPlayersPanel();
@@ -191,14 +195,14 @@ async function applySpecial(pIdx, sp, landedOn) {
     }
     case 'skip': {
       setOverlayEvent(`⛔ ${sp.desc}`, 'skip');
-      log(`⛔ ${p.name}: ${sp.desc}`, 'skip');
+      log(`⛔ ${p.name}: ${sp.desc}`, 'skip', pIdx);
       p.skipNext = true;
       refreshPlayersPanel();
       return false;
     }
     case 'rollagain': {
       setOverlayEvent(`🎲 ${sp.desc}`, 'rollagain');
-      log(`🎲 ${p.name}: ${sp.desc}`, 'bonus');
+      log(`🎲 ${p.name}: ${sp.desc}`, 'rollagain', pIdx);
       return true;
     }
   }

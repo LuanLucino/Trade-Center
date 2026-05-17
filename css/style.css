@@ -241,14 +241,21 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 #btn-cancel-ready:hover { background: rgba(192,57,43,0.12); border-color: #e74c3c; color: #e74c3c; }
 
 /* ── Game screen ── */
-#game-screen { padding: 14px; }
-#game-screen.active { display: flex; align-items: flex-start; justify-content: center; }
+#game-screen { padding: 0; overflow: hidden; }
+#game-screen.active {
+  display: flex; align-items: stretch; justify-content: center;
+  height: 100vh; overflow: hidden;
+}
 #game-container {
-  display: flex; gap: 18px; max-width: 1200px; width: 100%; padding-top: 6px;
+  display: flex; gap: 16px; width: 100%; max-width: 1500px;
+  padding: 12px; height: 100%; align-items: stretch;
 }
 
-#board-wrapper { flex: 1; min-width: 0; overflow-x: auto; padding: 0 50px 16px; }
-#board         { position: relative; overflow: visible; margin: 0 auto; }
+#board-wrapper {
+  flex: 1; min-width: 0; overflow: hidden; padding: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+}
+#board { position: relative; overflow: visible; flex-shrink: 0; }
 
 /* ── Squares ── */
 .square {
@@ -322,7 +329,11 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .leg-color   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.15); }
 
 /* ── Sidebar ── */
-#sidebar { width: 244px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+#sidebar {
+  width: 244px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;
+  overflow-y: auto; scrollbar-width: none;
+}
+#sidebar::-webkit-scrollbar { display: none; }
 .sidebar-title { font-size: 1.2rem; color: #f0c040; text-align: center; padding: 4px 0; }
 
 #players-panel { background: linear-gradient(145deg, #16213e, #0f1a2e); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 7px; }
@@ -400,10 +411,11 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
   100% { transform: translateY(0)     rotate(0)       scale(1); }
 }
 
-#log-area    { background: linear-gradient(145deg, #16213e, #0f1a2e); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; flex: 1; }
+#log-area    { background: linear-gradient(145deg, #16213e, #0f1a2e); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; }
 #log-area h3 { color: #3a4a6a; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 9px; }
-#game-log    { display: flex; flex-direction: column; gap: 5px; max-height: 240px; overflow-y: auto; }
-.log-entry   { font-size: 0.73rem; padding: 5px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); line-height: 1.4; border-left: 3px solid transparent; }
+#game-log    { display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
+.log-entry   { font-size: 0.73rem; padding: 5px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); line-height: 1.4; border-left: 3px solid transparent; display: flex; align-items: center; gap: 0; }
+.log-player-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
 .log-entry.move     { border-color: #3498db; }
 .log-entry.bonus    { border-color: #27ae60; }
 .log-entry.penalty  { border-color: #e74c3c; }
@@ -505,9 +517,10 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  #game-container  { flex-direction: column; align-items: center; }
-  #board-wrapper   { width: 100%; padding: 0 10px 10px; }
-  #sidebar         { width: 100%; max-width: 520px; flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  #game-screen.active { height: auto; min-height: 100vh; overflow: auto; }
+  #game-container  { flex-direction: column; align-items: center; height: auto; padding: 10px; }
+  #board-wrapper   { width: 100%; height: auto; }
+  #sidebar         { width: 100%; max-width: 520px; flex-direction: row; flex-wrap: wrap; gap: 10px; overflow: visible; }
   #players-panel, #dice-area, #log-area { flex: 1 1 200px; }
   .sidebar-title   { display: none; }
 }
