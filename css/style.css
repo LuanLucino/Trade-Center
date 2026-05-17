@@ -252,13 +252,20 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 /* ── Squares ── */
 .square {
-  position: absolute; width: 68px; height: 68px; border-radius: 50%;
+  position: absolute; width: 72px; height: 72px; border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: default; user-select: none; border: 2.5px solid transparent;
   transition: transform 0.14s;
   box-shadow: 0 3px 12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 .square:hover { transform: scale(1.1); z-index: 10; }
+
+.square.sq-highlight { animation: sqPop 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes sqPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.28); z-index: 12; }
+  100% { transform: scale(1); }
+}
 
 .sq-normal   { background: #0e1a40; border-color: #1e3870; }
 .sq-bonus    { background: #0b3d22; border-color: #1e7a44; }
@@ -284,6 +291,24 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
   z-index: 8; pointer-events: none;
   transition: left 0.38s cubic-bezier(0.4,0,0.2,1), top 0.38s cubic-bezier(0.4,0,0.2,1);
+}
+.board-token.landing { animation: tokenLand 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes tokenLand {
+  0%   { transform: scale(1.7) translateY(-10px); }
+  60%  { transform: scale(0.88); }
+  80%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ── Particles ── */
+.particle {
+  position: absolute; width: 7px; height: 7px; border-radius: 50%;
+  pointer-events: none; z-index: 20; transform: translate(-50%, -50%);
+  animation: particleBurst 0.7s ease-out forwards;
+}
+@keyframes particleBurst {
+  0%   { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
 }
 
 /* ── Legend ── */
@@ -323,7 +348,18 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .p-status  { font-size: 0.64rem; color: #f0c040; margin-top: 1px; }
 .you-badge { display: inline-block; font-size: 0.56rem; font-weight: 700; background: rgba(240,192,64,0.15); color: #f0c040; padding: 1px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
 
-#dice-area { background: linear-gradient(145deg, #16213e, #0f1a2e); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; text-align: center; }
+#dice-area { background: linear-gradient(145deg, #16213e, #0f1a2e); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; text-align: center; position: relative; }
+
+#mute-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 28px; height: 28px; border-radius: 7px;
+  background: transparent; border: 1.5px solid rgba(255,255,255,0.1);
+  color: #5a7090; cursor: pointer; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s; line-height: 1;
+}
+#mute-btn:hover { border-color: rgba(240,192,64,0.45); color: #f0c040; }
+#mute-btn.muted { color: #e74c3c; border-color: rgba(231,76,60,0.4); }
 
 #dice {
   width: 74px; height: 74px;

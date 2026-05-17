@@ -55,9 +55,11 @@ function buildBoard() {
   Object.assign(svg.style, { position:'absolute', top:'0', left:'0', overflow:'visible', pointerEvents:'none' });
 
   const pd = snakePath();
-  mkPath(svg, NS, pd, '#05091a', BD.strokeW + 14);
-  mkPath(svg, NS, pd, '#192b56', BD.strokeW);
-  mkPath(svg, NS, pd, '#243d7a', BD.strokeW - 20, 0.4);
+  mkPath(svg, NS, pd, '#02040d', BD.strokeW + 22);
+  mkPath(svg, NS, pd, '#05091a', BD.strokeW + 12);
+  mkPath(svg, NS, pd, '#0d1b46', BD.strokeW);
+  mkPath(svg, NS, pd, '#1a2f6e', BD.strokeW - 14);
+  mkPath(svg, NS, pd, '#243d7a', BD.strokeW - 28, 0.35);
 
   // Teleport lines
   Object.entries(SPECIALS).forEach(([from, sp]) => {
@@ -114,6 +116,44 @@ function initTokens() {
     tok.style.background = p.color;
     board.appendChild(tok);
   });
+}
+
+// Spawn burst particles on a square
+function spawnParticles(squareIdx, color) {
+  const board = document.getElementById('board');
+  const { x, y } = squareCenter(squareIdx);
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / count) * Math.PI * 2;
+    const dist  = 28 + Math.random() * 34;
+    const tx    = Math.cos(angle) * dist;
+    const ty    = Math.sin(angle) * dist;
+    p.style.cssText = `left:${x}px;top:${y}px;background:${color};--tx:${tx}px;--ty:${ty}px`;
+    board.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+  }
+}
+
+// Bounce-land animation on a token
+function triggerTokenLand(pIdx) {
+  const tok = document.getElementById(`btoken-${pIdx}`);
+  if (!tok) return;
+  tok.classList.remove('landing');
+  void tok.offsetWidth;
+  tok.classList.add('landing');
+  tok.addEventListener('animationend', () => tok.classList.remove('landing'), { once: true });
+}
+
+// Pop-highlight a square on landing
+function highlightSquare(idx) {
+  const sq = document.getElementById(`sq-${idx}`);
+  if (!sq) return;
+  sq.classList.remove('sq-highlight');
+  void sq.offsetWidth;
+  sq.classList.add('sq-highlight');
+  sq.addEventListener('animationend', () => sq.classList.remove('sq-highlight'), { once: true });
 }
 
 // Updates token positions (CSS transitions handle the animation).
