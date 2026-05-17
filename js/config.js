@@ -32,5 +32,4 @@ const BD = (() => {
 
 // WebSocket server URL.
 // In the online screen the user can override this via the URL input.
-const DEFAULT_WS_URL = (location.protocol === 'https:' ? 'wss:' : 'ws:')
-  + '//localhost:8080';
+const DEFAULT_WS_URL = 'wss://resample-iron-blank.ngrok-free.dev';
