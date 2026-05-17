@@ -333,7 +333,7 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 /* ── Sidebar ── */
 #sidebar {
-  width: 244px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
+  width: clamp(200px, 20%, 300px); flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
   background: linear-gradient(180deg, rgba(20,17,8,0.88), rgba(12,10,4,0.92));
   border: 1px solid rgba(180,140,50,0.22);
   border-radius: 16px;

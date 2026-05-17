@@ -1,6 +1,6 @@
 'use strict';
 
-const BOARD_SIZE    = 40;
+const BOARD_SIZE    = 50;
 const PER_ROW       = 10;
 const PLAYER_COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
 const DICE_FACES    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
@@ -16,16 +16,20 @@ const SPECIALS = {
   29: { type: 'bonus',     value:  4, icon: '💰', label: '+4',   desc: 'Investimento certo! Avança 4 casas.' },
   33: { type: 'penalty',   value: -6, icon: '💸', label: '-6',   desc: 'Falência! Volta 6 casas.' },
   37: { type: 'penalty',   value: -4, icon: '😬', label: '-4',   desc: 'Quase lá... Volta 4 casas!' },
+  41: { type: 'bonus',     value:  4, icon: '⬆️', label: '+4',   desc: 'Impulso final! Avança 4 casas.' },
+  43: { type: 'penalty',   value: -5, icon: '💸', label: '-5',   desc: 'Armadilha! Volta 5 casas.' },
+  45: { type: 'skip',      value:  0, icon: '⛔', label: 'STOP', desc: 'Bloqueio! Perde a vez.' },
+  47: { type: 'rollagain', value:  0, icon: '🎲', label: '+🎲',  desc: 'Última chance! Role de novo.' },
 };
 
 // Board visual dimensions — derived once, shared by board.js
+// padX must be ≥ curveR + strokeW/2 to prevent curve clipping.
+// With yStep=148, curveR=74, strokeW outer layer=94 → padX≥74+47=121. Using 128.
 const BD = (() => {
-  const w=900, h=600, padX=70, padY=56, sqSz=64, rows=4, cols=10;
-  const xStep = (w - 2*padX) / (cols - 1);
-  const yStep = (h - 2*padY) / (rows - 1);
-  // strokeW is tied to sqSz, NOT yStep — keeps the track narrow
-  // so the gap between rows (yStep - strokeW ≈ 84px) stays visible
-  const strokeW = sqSz + 14;
+  const w=900, h=692, padX=128, padY=50, sqSz=64, rows=5, cols=10;
+  const xStep  = (w - 2*padX) / (cols - 1);
+  const yStep  = (h - 2*padY) / (rows - 1);
+  const strokeW = sqSz + 8;   // track just frames the squares; gap = yStep-strokeW ≈ 76px
   return {
     w, h, padX, padY, sqSz, rows, cols, xStep, yStep,
     strokeW,

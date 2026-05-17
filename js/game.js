@@ -130,7 +130,7 @@ async function applyMove(pIdx, steps) {
     log(`🏆 ${p.name} chegou ao FIM!`, 'finish', pIdx);
     refreshTokens();
     refreshPlayersPanel();
-    checkWin();
+    checkWin(pIdx);
     return false;
   }
 
@@ -171,7 +171,7 @@ async function applySpecial(pIdx, sp, landedOn) {
         spawnParticles(dest, '#f0c040');
         setOverlayEvent(`🏆 ${p.name} chegou ao FIM!`, 'finish');
         log(`🏆 ${p.name} chegou ao FIM!`, 'finish', pIdx);
-        checkWin();
+        checkWin(pIdx);
       }
       return false;
     }
@@ -224,15 +224,13 @@ function nextTurn() {
   updateUI();
 }
 
-function checkWin() {
-  if (!state.players.every(p => p.finished)) return;
+function checkWin(pIdx) {
+  if (state.over) return;
   state.over = true;
+  const winner = state.players[pIdx];
   playSound('win');
   setTimeout(() => {
     closeRollOverlay();
-    showWinScreen(
-      state.players.map(p => p.name).join(', ') +
-      ' chegaram juntos ao fim!\nMissão cumprida em equipe! 🎉'
-    );
+    showWinScreen(`${winner.name} chegou ao FIM primeiro e venceu! 🏆`);
   }, 1600);
 }

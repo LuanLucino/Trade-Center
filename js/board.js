@@ -19,19 +19,22 @@ function squareClass(idx) {
 }
 
 function snakePath() {
-  const { padX: xL, w, padY, yStep, curveR: r } = BD;
-  const xR = w - xL;
-  const Y  = dr => padY + dr * yStep;
-  return [
-    `M ${xL} ${Y(3)}`,
-    `L ${xR} ${Y(3)}`,
-    `C ${xR+r} ${Y(3)} ${xR+r} ${Y(2)} ${xR} ${Y(2)}`,
-    `L ${xL} ${Y(2)}`,
-    `C ${xL-r} ${Y(2)} ${xL-r} ${Y(1)} ${xL} ${Y(1)}`,
-    `L ${xR} ${Y(1)}`,
-    `C ${xR+r} ${Y(1)} ${xR+r} ${Y(0)} ${xR} ${Y(0)}`,
-    `L ${xL} ${Y(0)}`,
-  ].join(' ');
+  const { padX: xL, w, padY, yStep, curveR: r, rows } = BD;
+  const xR     = w - xL;
+  const Y      = dr => padY + dr * yStep;
+  const bottom = rows - 1;
+  const parts  = [`M ${xL} ${Y(bottom)}`, `L ${xR} ${Y(bottom)}`];
+  for (let dr = bottom; dr > 0; dr--) {
+    const rightTurn = (bottom - dr) % 2 === 0;
+    if (rightTurn) {
+      parts.push(`C ${xR+r} ${Y(dr)} ${xR+r} ${Y(dr-1)} ${xR} ${Y(dr-1)}`);
+      parts.push(`L ${xL} ${Y(dr-1)}`);
+    } else {
+      parts.push(`C ${xL-r} ${Y(dr)} ${xL-r} ${Y(dr-1)} ${xL} ${Y(dr-1)}`);
+      parts.push(`L ${xR} ${Y(dr-1)}`);
+    }
+  }
+  return parts.join(' ');
 }
 
 function mkPath(svg, NS, d, stroke, sw, opacity) {
