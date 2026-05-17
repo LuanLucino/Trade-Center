@@ -92,9 +92,9 @@ function animateDice(final) {
 }
 
 // ── Roll overlay ─────────────────────────────────────────────
-function openRollOverlay(playerName, playerColor) {
+function openRollOverlay(playerName, playerColor, playerIcon) {
   const av = document.getElementById('roc-avatar');
-  av.textContent       = playerName[0].toUpperCase();
+  av.textContent       = playerIcon || playerName[0].toUpperCase();
   av.style.background  = playerColor;
   document.getElementById('roc-player-name').textContent = playerName;
   document.getElementById('roc-value').textContent       = '';
@@ -149,7 +149,7 @@ function buildPlayersPanel() {
     card.id = `pc-${i}`;
     card.className = 'player-card';
     card.innerHTML = `
-      <div class="p-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
+      <div class="p-avatar" style="background:${p.color}">${p.icon || p.name[0].toUpperCase()}</div>
       <div class="p-text">
         <div class="p-name">${p.name}${isMe ? '<span class="you-badge">você</span>' : ''}</div>
         <div class="p-pos" id="pp-${i}">Casa 0</div>
@@ -244,9 +244,10 @@ function initLocalSetup() {
   const fresh = startBtn.cloneNode(true);
   startBtn.parentNode.replaceChild(fresh, startBtn);
   document.getElementById('start-local-btn').addEventListener('click', () => {
-    const names = [...document.querySelectorAll('#player-names-section input')]
-      .map(el => el.value.trim() || el.placeholder);
-    startLocalGame(count, names);
+    const groups = [...document.querySelectorAll('#player-names-section .player-input-group')];
+    const names  = groups.map((g, i) => { const inp = g.querySelector('input'); return inp.value.trim() || inp.placeholder; });
+    const icons  = groups.map(g => g.querySelector('.icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0]);
+    startLocalGame(count, names, icons);
   });
 
   document.getElementById('back-to-mode-from-setup').addEventListener('click', () => showScreen('mode-screen'));
@@ -259,9 +260,21 @@ function renderNameInputs(count) {
   for (let i = 0; i < count; i++) {
     const g = document.createElement('div');
     g.className = 'player-input-group';
+    const iconsHtml = VIKING_ICONS.map((ic, j) =>
+      `<button type="button" class="icon-pick-btn${j === i % VIKING_ICONS.length ? ' selected' : ''}" data-icon="${ic}">${ic}</button>`
+    ).join('');
     g.innerHTML = `
       <div class="player-color-dot" style="background:${PLAYER_COLORS[i]}"></div>
-      <input type="text" placeholder="${defaults[i]}" maxlength="20">`;
+      <div class="player-input-col">
+        <input type="text" placeholder="${defaults[i]}" maxlength="20">
+        <div class="icon-picker">${iconsHtml}</div>
+      </div>`;
+    g.querySelectorAll('.icon-pick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        g.querySelectorAll('.icon-pick-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
     section.appendChild(g);
   }
 }
@@ -270,13 +283,27 @@ function renderNameInputs(count) {
 function initOnlineScreen() {
   document.getElementById('ws-url').value = DEFAULT_WS_URL;
 
+  const onlinePicker = document.getElementById('online-icon-picker');
+  if (onlinePicker) {
+    onlinePicker.innerHTML = VIKING_ICONS.map((ic, i) =>
+      `<button type="button" class="icon-pick-btn${i === 0 ? ' selected' : ''}" data-icon="${ic}">${ic}</button>`
+    ).join('');
+    onlinePicker.querySelectorAll('.icon-pick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        onlinePicker.querySelectorAll('.icon-pick-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+  }
+
   document.getElementById('back-to-mode-from-online').addEventListener('click', () => showScreen('mode-screen'));
 
   document.getElementById('btn-create-room').addEventListener('click', async () => {
     const name = document.getElementById('online-name').value.trim() || 'Jogador';
     const url  = document.getElementById('ws-url').value.trim();
+    const icon = document.querySelector('#online-icon-picker .icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0];
     setOnlineStatus('Conectando...', false);
-    try { await connectWS(url); createRoom(name); }
+    try { await connectWS(url); createRoom(name, icon); }
     catch (e) { setOnlineStatus('❌ ' + e.message, true); }
   });
 
@@ -284,9 +311,10 @@ function initOnlineScreen() {
     const name = document.getElementById('online-name').value.trim() || 'Jogador';
     const code = document.getElementById('room-code-input').value.trim().toUpperCase();
     const url  = document.getElementById('ws-url').value.trim();
+    const icon = document.querySelector('#online-icon-picker .icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0];
     if (!code) { setOnlineStatus('❌ Digite o código da sala.', true); return; }
     setOnlineStatus('Conectando...', false);
-    try { await connectWS(url); joinRoom(code, name); }
+    try { await connectWS(url); joinRoom(code, name, icon); }
     catch (e) { setOnlineStatus('❌ ' + e.message, true); }
   });
 }
@@ -356,7 +384,7 @@ function updateLobbyPlayers(players) {
     card.className = 'lobby-player-card' + (p.ready ? ' is-ready' : '');
 
     const leftHtml = `
-      <div class="lp-avatar" style="background:${PLAYER_COLORS[i]}">${p.name[0].toUpperCase()}</div>
+      <div class="lp-avatar" style="background:${PLAYER_COLORS[i]}">${p.icon || p.name[0].toUpperCase()}</div>
       <div class="lp-info">
         <span class="lp-name">${p.name}</span>
         ${i === 0 ? '<span class="lp-badge host">host</span>' : ''}
@@ -407,9 +435,11 @@ function startLobbyCountdown(seconds) {
   overlay.classList.add('visible');
   let remaining = seconds;
   num.textContent = remaining;
+  playSound('countdown');
   _cdInterval = setInterval(() => {
     remaining--;
     num.textContent = remaining;
+    if (remaining > 0) playSound('countdown');
     if (remaining <= 0) cancelLobbyCountdown();
   }, 1000);
 }

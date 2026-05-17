@@ -3,6 +3,7 @@
 const BOARD_SIZE    = 50;
 const PER_ROW       = 10;
 const PLAYER_COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12'];
+const VIKING_ICONS  = ['⚔️','🛡️','🪓','🐉','👑','🐺','🦅','⚡'];
 const DICE_FACES    = ['⚀','⚁','⚂','⚃','⚄','⚅'];
 
 const SPECIALS = {

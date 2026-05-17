@@ -24,24 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Local game ───────────────────────────────────────────────
-function startLocalGame(numPlayers, names) {
+function startLocalGame(numPlayers, names, icons) {
   isOnline = false;
   myIdx    = null;
-  initGame(names.slice(0, numPlayers));
+  initGame(names.slice(0, numPlayers), icons);
 }
 
 // ── Online game ───────────────────────────────────────────────
 function startOnlineGame(serverPlayers) {
   isOnline = true;
-  initGame(serverPlayers.map(p => p.name));
+  initGame(serverPlayers.map(p => p.name), serverPlayers.map(p => p.icon));
   log(`Você é ${state.players[myIdx].name}. Boa sorte!`, 'system');
 }
 
 // ── Common initializer ────────────────────────────────────────
-function initGame(names) {
+function initGame(names, icons = []) {
   state = {
     players: names.map((name, i) => ({
       name, color: PLAYER_COLORS[i],
+      icon: icons[i] || VIKING_ICONS[i % VIKING_ICONS.length],
       pos: 0, skipNext: false, finished: false,
     })),
     current: 0, rolling: false, over: false,
@@ -74,7 +75,7 @@ async function onRoll() {
   if (p.skipNext) {
     p.skipNext = false;
     if (isOnline) sendToServer({ type: 'game_action', action: 'skip' });
-    openRollOverlay(p.name, p.color);
+    openRollOverlay(p.name, p.color, p.icon);
     await delay(300);
     setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
     log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);
@@ -95,7 +96,7 @@ async function onRoll() {
 // processTurn is shared between local and remote-action paths.
 async function processTurn(val) {
   const p = state.players[state.current];
-  openRollOverlay(p.name, p.color);
+  openRollOverlay(p.name, p.color, p.icon);
 
   await animateDice(val);
 

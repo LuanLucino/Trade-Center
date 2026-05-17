@@ -3,6 +3,7 @@
 let socket   = null;
 let myIdx    = null;
 let isOnline = false;
+let myIcon   = '⚔️';
 const mySessionId = Math.random().toString(36).substr(2, 9);
 
 function connectWS(serverUrl) {
@@ -22,8 +23,8 @@ function sendToServer(data) {
   if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(data));
 }
 
-function createRoom(name) { sendToServer({ type: 'create_room', name, sessionId: mySessionId }); }
-function joinRoom(code, name) { sendToServer({ type: 'join_room', code, name, sessionId: mySessionId }); }
+function createRoom(name, icon) { myIcon = icon || '⚔️'; sendToServer({ type: 'create_room', name, icon: myIcon, sessionId: mySessionId }); }
+function joinRoom(code, name, icon) { myIcon = icon || '⚔️'; sendToServer({ type: 'join_room', code, name, icon: myIcon, sessionId: mySessionId }); }
 
 // ── Incoming ─────────────────────────────────────────────────
 function handleServerMessage(msg) {
@@ -93,7 +94,7 @@ async function applyRemoteAction(msg) {
   const p = state.players[state.current];
   if (msg.action === 'skip') {
     p.skipNext = false;
-    openRollOverlay(p.name, p.color);
+    openRollOverlay(p.name, p.color, p.icon);
     await delay(300);
     setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
     log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);

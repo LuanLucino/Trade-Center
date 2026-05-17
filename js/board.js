@@ -114,7 +114,7 @@ function initTokens() {
     const tok = document.createElement('div');
     tok.className = 'board-token';
     tok.id        = `btoken-${i}`;
-    tok.textContent = p.name[0].toUpperCase();
+    tok.textContent = p.icon || p.name[0].toUpperCase();
     tok.title       = p.name;
     tok.style.background = p.color;
     board.appendChild(tok);

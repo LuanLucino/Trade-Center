@@ -68,6 +68,10 @@ function _win() {
   [523, 659, 784, 1047, 1319].forEach((f, i) => _note(f, 'sine', 0.28, 0.18, i * 0.13));
 }
 
+function _countdownBeep() {
+  _note(660, 'sine', 0.09, 0.13);
+}
+
 function playSound(type) {
   if (_muted) return;
   try {
@@ -80,6 +84,7 @@ function playSound(type) {
       case 'skip':      _skip();      break;
       case 'rollagain': _rollAgain(); break;
       case 'win':       _win();       break;
+      case 'countdown': _countdownBeep(); break;
     }
   } catch(e) {}
 }
