@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (socket) { socket.close(); socket = null; }
     showScreen('mode-screen');
   });
+
+  document.getElementById('leave-game-btn').addEventListener('click', () => {
+    if (!confirm('Deseja sair da partida?')) return;
+    stopBgMusic();
+    state.over = true;
+    if (socket) { socket.close(); socket = null; }
+    isOnline = false; myIdx = null;
+    showScreen('mode-screen');
+  });
   window.addEventListener('resize', () => {
     if (document.getElementById('game-screen')?.classList.contains('active')) fitBoard();
   });
@@ -79,6 +88,8 @@ function initGame(names, icons = [], startIdx = null) {
   setDiceFace(6);
   updateUI();
   startBgMusic();
+  const leaveBtn = document.getElementById('leave-game-btn');
+  if (leaveBtn) leaveBtn.style.display = isOnline ? '' : 'none';
   log(`Jogo iniciado! ${names.join(', ')} — Boa sorte!`, 'system');
 }
 

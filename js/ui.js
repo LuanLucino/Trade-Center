@@ -333,6 +333,12 @@ function renderNameInputs(count) {
 }
 
 // ── Online config screen ──────────────────────────────────────
+function _getOnlineIcon() {
+  const btns = [...document.querySelectorAll('#online-icon-picker .icon-pick-btn')];
+  const idx  = btns.findIndex(b => b.classList.contains('selected'));
+  return VIKING_ICONS[idx >= 0 ? idx : 0];
+}
+
 function initOnlineScreen() {
   document.getElementById('ws-url').value = DEFAULT_WS_URL;
 
@@ -354,7 +360,7 @@ function initOnlineScreen() {
   document.getElementById('btn-create-room').addEventListener('click', async () => {
     const name = document.getElementById('online-name').value.trim() || 'Jogador';
     const url  = document.getElementById('ws-url').value.trim();
-    const icon = document.querySelector('#online-icon-picker .icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0];
+    const icon = _getOnlineIcon();
     setOnlineStatus('Conectando...', false);
     try { await connectWS(url); createRoom(name, icon); }
     catch (e) { setOnlineStatus('❌ ' + e.message, true); }
@@ -364,7 +370,7 @@ function initOnlineScreen() {
     const name = document.getElementById('online-name').value.trim() || 'Jogador';
     const code = document.getElementById('room-code-input').value.trim().toUpperCase();
     const url  = document.getElementById('ws-url').value.trim();
-    const icon = document.querySelector('#online-icon-picker .icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0];
+    const icon = _getOnlineIcon();
     if (!code) { setOnlineStatus('❌ Digite o código da sala.', true); return; }
     setOnlineStatus('Conectando...', false);
     try { await connectWS(url); joinRoom(code, name, icon); }

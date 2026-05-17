@@ -222,6 +222,15 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 }
 .btn-leave:hover { border-color: #c0392b; background: rgba(192,57,43,0.08); }
 
+.btn-leave-game {
+  display: block; width: 100%; padding: 10px 18px; margin-top: 10px;
+  background: transparent; color: #c0392b;
+  border: 1.5px solid rgba(192,57,43,0.35); border-radius: 12px;
+  font-size: 0.82rem; cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+.btn-leave-game:hover { border-color: #c0392b; background: rgba(192,57,43,0.10); }
+
 /* Countdown overlay */
 #lobby-countdown {
   position: fixed; inset: 0;
