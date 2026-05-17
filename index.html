@@ -90,20 +90,26 @@
 
   <!-- ── Lobby ── -->
   <div id="lobby-screen" class="screen">
-    <div class="card">
-      <h1>🏠 Sala</h1>
-      <p class="sub">Compartilhe o código com seus amigos</p>
-
-      <div class="room-code-display">
-        <span id="display-room-code">------</span>
-        <button id="copy-code-btn">Copiar</button>
+    <div class="card lobby-card">
+      <div class="lobby-header">
+        <h1>🏠 Sala</h1>
+        <div class="room-code-display">
+          <span id="display-room-code">------</span>
+          <button id="copy-code-btn">Copiar</button>
+        </div>
       </div>
 
-      <div id="lobby-player-list" class="lobby-player-list"></div>
-      <p id="lobby-status" class="online-status"></p>
-
-      <button id="btn-start-online" class="btn-primary" style="display:none">▶ Iniciar Jogo</button>
+      <div id="lobby-player-list"></div>
+      <p id="lobby-hint" class="lobby-hint"></p>
       <button id="back-to-mode-from-lobby" class="btn-secondary">← Sair da Sala</button>
+    </div>
+
+    <!-- Countdown overlay -->
+    <div id="lobby-countdown">
+      <div class="cd-ring">
+        <span id="cd-number">5</span>
+      </div>
+      <p>Jogo iniciando...</p>
     </div>
   </div>
 

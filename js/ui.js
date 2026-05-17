@@ -10,7 +10,7 @@ function showScreen(id) {
 function log(msg, type = 'system') {
   const el  = document.getElementById('game-log');
   const div = document.createElement('div');
-  div.className   = `log-entry ${type}`;
+  div.className = `log-entry ${type}`;
   div.textContent = msg;
   el.insertBefore(div, el.firstChild);
   while (el.children.length > 30) el.removeChild(el.lastChild);
@@ -37,20 +37,20 @@ function animateDice(final) {
   });
 }
 
-// ── Players panel ────────────────────────────────────────────
+// ── Players panel (in-game) ───────────────────────────────────
 function buildPlayersPanel() {
   const panel = document.getElementById('players-panel');
   panel.innerHTML = '';
   state.players.forEach((p, i) => {
     const isMe = isOnline && i === myIdx;
     const card = document.createElement('div');
-    card.className = 'player-card';
     card.id = `pc-${i}`;
+    card.className = 'player-card';
     card.innerHTML = `
       <div class="p-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
       <div class="p-text">
-        <div class="p-name">${p.name}${isMe ? ' <span class="you-badge">você</span>' : ''}</div>
-        <div class="p-pos" id="pp-${i}">Casa 0 / ${BOARD_SIZE-1}</div>
+        <div class="p-name">${p.name}${isMe ? '<span class="you-badge">você</span>' : ''}</div>
+        <div class="p-pos" id="pp-${i}">Casa 0</div>
         <div class="p-status" id="ps-${i}"></div>
       </div>`;
     panel.appendChild(card);
@@ -65,12 +65,12 @@ function refreshPlayersPanel() {
       (i === state.current && !state.over ? ' active-turn'     : '') +
       (p.finished                          ? ' finished-player' : '') +
       (p.skipNext                          ? ' skip-player'     : '');
-    document.getElementById(`pp-${i}`).textContent = `Casa ${p.pos} / ${BOARD_SIZE-1}`;
+    document.getElementById(`pp-${i}`).textContent = `Casa ${p.pos} / ${BOARD_SIZE - 1}`;
     const st = document.getElementById(`ps-${i}`);
-    if (p.finished)                             st.textContent = '✅ Chegou!';
-    else if (p.skipNext)                        st.textContent = '⏸ Vai pular vez';
-    else if (i === state.current && !state.over) st.textContent = '← Jogando...';
-    else                                         st.textContent = '';
+    if      (p.finished)                              st.textContent = '✅ Chegou!';
+    else if (p.skipNext)                              st.textContent = '⏸ Vai pular vez';
+    else if (i === state.current && !state.over)      st.textContent = '← Jogando...';
+    else                                              st.textContent = '';
   });
 }
 
@@ -78,17 +78,13 @@ function refreshPlayersPanel() {
 function updateUI(rollAgain = false) {
   refreshPlayersPanel();
   if (state.over) return;
-
   const p       = state.players[state.current];
   const btn     = document.getElementById('roll-btn');
   const isMyTurn = !isOnline || myIdx === state.current;
-
   btn.disabled = !isMyTurn;
-  if (isMyTurn) {
-    btn.textContent = rollAgain ? '🎲 Rolar de Novo!' : '🎲 Rolar Dado';
-  } else {
-    btn.textContent = `⏳ Vez de ${p.name}...`;
-  }
+  btn.textContent = isMyTurn
+    ? (rollAgain ? '🎲 Rolar de Novo!' : '🎲 Rolar Dado')
+    : `⏳ Vez de ${p.name}...`;
 }
 
 // ── Mode screen ──────────────────────────────────────────────
@@ -102,18 +98,16 @@ function initModeScreen() {
   });
 }
 
-// ── Local setup screen ───────────────────────────────────────
+// ── Local setup ───────────────────────────────────────────────
 function initLocalSetup() {
   let count = 2;
   renderNameInputs(count);
 
-  const countBtns = document.querySelectorAll('.count-btn');
-  countBtns.forEach(btn => {
-    // Remove old listeners by replacing buttons (simplest approach)
+  // Rebind count buttons
+  document.querySelectorAll('.count-btn').forEach(btn => {
     const clone = btn.cloneNode(true);
     btn.parentNode.replaceChild(clone, btn);
   });
-
   document.querySelectorAll('.count-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
@@ -124,22 +118,19 @@ function initLocalSetup() {
   });
 
   const startBtn = document.getElementById('start-local-btn');
-  const newBtn   = startBtn.cloneNode(true);
-  startBtn.parentNode.replaceChild(newBtn, startBtn);
-
+  const fresh = startBtn.cloneNode(true);
+  startBtn.parentNode.replaceChild(fresh, startBtn);
   document.getElementById('start-local-btn').addEventListener('click', () => {
     const names = [...document.querySelectorAll('#player-names-section input')]
-      .map((el) => el.value.trim() || el.placeholder);
+      .map(el => el.value.trim() || el.placeholder);
     startLocalGame(count, names);
   });
 
-  document.getElementById('back-to-mode-from-setup').addEventListener('click', () => {
-    showScreen('mode-screen');
-  });
+  document.getElementById('back-to-mode-from-setup').addEventListener('click', () => showScreen('mode-screen'));
 }
 
 function renderNameInputs(count) {
-  const defaults = ['Jogador 1','Jogador 2','Jogador 3','Jogador 4'];
+  const defaults = ['Jogador 1', 'Jogador 2', 'Jogador 3', 'Jogador 4'];
   const section  = document.getElementById('player-names-section');
   section.innerHTML = '';
   for (let i = 0; i < count; i++) {
@@ -152,24 +143,18 @@ function renderNameInputs(count) {
   }
 }
 
-// ── Online screen ─────────────────────────────────────────────
+// ── Online config screen ──────────────────────────────────────
 function initOnlineScreen() {
   document.getElementById('ws-url').value = DEFAULT_WS_URL;
 
-  document.getElementById('back-to-mode-from-online').addEventListener('click', () => {
-    showScreen('mode-screen');
-  });
+  document.getElementById('back-to-mode-from-online').addEventListener('click', () => showScreen('mode-screen'));
 
   document.getElementById('btn-create-room').addEventListener('click', async () => {
     const name = document.getElementById('online-name').value.trim() || 'Jogador';
     const url  = document.getElementById('ws-url').value.trim();
     setOnlineStatus('Conectando...', false);
-    try {
-      await connectWS(url);
-      createRoom(name);
-    } catch (e) {
-      setOnlineStatus('❌ ' + e.message, true);
-    }
+    try { await connectWS(url); createRoom(name); }
+    catch (e) { setOnlineStatus('❌ ' + e.message, true); }
   });
 
   document.getElementById('btn-join-room').addEventListener('click', async () => {
@@ -178,76 +163,113 @@ function initOnlineScreen() {
     const url  = document.getElementById('ws-url').value.trim();
     if (!code) { setOnlineStatus('❌ Digite o código da sala.', true); return; }
     setOnlineStatus('Conectando...', false);
-    try {
-      await connectWS(url);
-      joinRoom(code, name);
-    } catch (e) {
-      setOnlineStatus('❌ ' + e.message, true);
-    }
+    try { await connectWS(url); joinRoom(code, name); }
+    catch (e) { setOnlineStatus('❌ ' + e.message, true); }
   });
 }
 
 function setOnlineStatus(msg, isError) {
   const el = document.getElementById('online-status');
-  el.textContent  = msg;
-  el.className    = 'online-status' + (isError ? ' error' : '');
+  el.textContent = msg;
+  el.className   = 'online-status' + (isError ? ' error' : '');
 }
 
-// ── Lobby screen ──────────────────────────────────────────────
-function showLobby(code, players, isHost) {
+// ── Lobby ─────────────────────────────────────────────────────
+let _lobbyCode    = '';
+let _lobbyPlayers = [];
+
+function showLobby(code, players) {
+  _lobbyCode = code;
+  _lobbyPlayers = players;
   showScreen('lobby-screen');
   document.getElementById('display-room-code').textContent = code;
   updateLobbyPlayers(players);
 
-  const startBtn = document.getElementById('btn-start-online');
-  startBtn.style.display = isHost ? 'block' : 'none';
-  startBtn.onclick = () => {
-    // Count from DOM so we always have the current number, not a stale closure
-    const filled = document.querySelectorAll('.lobby-slot.filled').length;
-    if (filled < 2) {
-      alert('Aguarde pelo menos 2 jogadores.');
-      return;
-    }
-    sendToServer({ type: 'start_game' });
-  };
-
   document.getElementById('copy-code-btn').onclick = () => {
     navigator.clipboard.writeText(code).catch(() => {});
-    document.getElementById('copy-code-btn').textContent = '✓ Copiado!';
-    setTimeout(() => { document.getElementById('copy-code-btn').textContent = 'Copiar'; }, 2000);
+    const btn = document.getElementById('copy-code-btn');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = 'Copiar'; }, 1800);
   };
 
-  document.getElementById('back-to-mode-from-lobby').addEventListener('click', () => {
+  document.getElementById('back-to-mode-from-lobby').onclick = () => {
+    cancelLobbyCountdown();
     if (socket) socket.close();
+    socket = null; isOnline = false; myIdx = null;
     showScreen('mode-screen');
-  }, { once: true });
+  };
 }
 
 function updateLobbyPlayers(players) {
+  _lobbyPlayers = players;
   const list = document.getElementById('lobby-player-list');
   list.innerHTML = '';
-  const slots = 4;
-  for (let i = 0; i < slots; i++) {
-    const li   = document.createElement('div');
-    li.className = 'lobby-slot' + (i < players.length ? ' filled' : '');
-    if (i < players.length) {
-      const p = players[i];
-      li.innerHTML = `<span class="lobby-dot" style="background:${PLAYER_COLORS[i]}"></span>${p.name}${i===0?' (host)':''}`;
-    } else {
-      li.innerHTML = `<span class="lobby-dot empty"></span><em>Aguardando...</em>`;
+
+  players.forEach((p, i) => {
+    const isMe   = p.sessionId === mySessionId;
+    const isHost = myIdx === 0;
+
+    const card = document.createElement('div');
+    card.className = 'lobby-player-card' + (p.ready ? ' is-ready' : '');
+
+    const leftHtml = `
+      <div class="lp-avatar" style="background:${PLAYER_COLORS[i]}">${p.name[0].toUpperCase()}</div>
+      <div class="lp-info">
+        <span class="lp-name">${p.name}</span>
+        ${i === 0 ? '<span class="lp-badge host">host</span>' : ''}
+        ${p.ready  ? '<span class="lp-badge ready">✓ pronto</span>' : ''}
+      </div>`;
+
+    let rightHtml = '';
+    if (isMe) {
+      rightHtml = `<button class="btn-ready${p.ready ? ' active' : ''}" onclick="sendToServer({type:'player_ready'})">
+        ${p.ready ? '✓ Pronto' : 'Pronto?'}
+      </button>`;
+    } else if (isHost && i !== 0) {
+      rightHtml = `<button class="btn-kick" onclick="sendToServer({type:'kick_player',targetIdx:${i}})" title="Remover jogador">✕</button>`;
     }
-    list.appendChild(li);
+
+    card.innerHTML = `<div class="lp-left">${leftHtml}</div><div class="lp-right">${rightHtml}</div>`;
+    list.appendChild(card);
+  });
+
+  // Empty slots
+  for (let i = players.length; i < 4; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'lobby-player-card empty-slot';
+    slot.innerHTML = `<div class="lp-avatar empty">${i + 1}</div><span class="lp-empty-text">Aguardando...</span>`;
+    list.appendChild(slot);
   }
 
-  const startBtn = document.getElementById('btn-start-online');
-  if (startBtn.style.display !== 'none') {
-    startBtn.disabled = players.length < 2;
-  }
+  const allReady = players.length >= 2 && players.every(p => p.ready);
+  document.getElementById('lobby-hint').textContent = allReady
+    ? '🚀 Todos prontos! Iniciando...'
+    : players.length < 2
+      ? 'Aguardando mais jogadores...'
+      : 'Todos devem marcar "Pronto" para iniciar.';
+}
 
-  const status = document.getElementById('lobby-status');
-  status.textContent = players.length < 2
-    ? 'Aguardando mais jogadores...'
-    : `${players.length} jogador(es) prontos.`;
+// ── Lobby countdown ───────────────────────────────────────────
+let _cdInterval = null;
+
+function startLobbyCountdown(seconds) {
+  cancelLobbyCountdown();
+  const overlay = document.getElementById('lobby-countdown');
+  const num     = document.getElementById('cd-number');
+  overlay.classList.add('visible');
+  let remaining = seconds;
+  num.textContent = remaining;
+  _cdInterval = setInterval(() => {
+    remaining--;
+    num.textContent = remaining;
+    if (remaining <= 0) cancelLobbyCountdown();
+  }, 1000);
+}
+
+function cancelLobbyCountdown() {
+  if (_cdInterval) { clearInterval(_cdInterval); _cdInterval = null; }
+  const overlay = document.getElementById('lobby-countdown');
+  if (overlay) overlay.classList.remove('visible');
 }
 
 // ── Win screen ────────────────────────────────────────────────

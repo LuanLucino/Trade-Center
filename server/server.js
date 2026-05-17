@@ -4,30 +4,67 @@ const crypto    = require('crypto');
 const PORT = process.env.PORT || 8080;
 const wss  = new WebSocket.Server({ port: PORT });
 
-// rooms: Map<code, { players: [{ws, name}] }>
+function genCode() { return crypto.randomBytes(3).toString('hex').toUpperCase(); }
+
+class Room {
+  constructor() {
+    this.players = []; // { ws, name, sessionId, ready }
+    this.timer   = null;
+  }
+
+  snapshot() {
+    return this.players.map((p, i) => ({
+      idx: i, name: p.name, sessionId: p.sessionId, ready: p.ready,
+    }));
+  }
+
+  send(ws, msg) { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg)); }
+
+  broadcast(msg) {
+    const d = JSON.stringify(msg);
+    this.players.forEach(p => { if (p.ws.readyState === WebSocket.OPEN) p.ws.send(d); });
+  }
+
+  broadcastExcept(senderWs, msg) {
+    const d = JSON.stringify(msg);
+    this.players.forEach(p => {
+      if (p.ws !== senderWs && p.ws.readyState === WebSocket.OPEN) p.ws.send(d);
+    });
+  }
+
+  checkReady() {
+    const allReady = this.players.length >= 2 && this.players.every(p => p.ready);
+    if (allReady) this.startCountdown();
+    else          this.cancelCountdown();
+  }
+
+  startCountdown() {
+    if (this.timer) return;
+    this.broadcast({ type: 'countdown_start', seconds: 5 });
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      this.broadcast({ type: 'game_start', players: this.snapshot() });
+    }, 5000);
+  }
+
+  cancelCountdown(notify = true) {
+    if (!this.timer) return;
+    clearTimeout(this.timer);
+    this.timer = null;
+    if (notify) this.broadcast({ type: 'countdown_cancel' });
+  }
+
+  remove(ws) {
+    const idx = ws.playerIdx;
+    this.players = this.players.filter(p => p.ws !== ws);
+    this.players.forEach((p, i) => { p.ws.playerIdx = i; });
+    this.players.forEach(p => { p.ready = false; }); // reset ready on any change
+    this.cancelCountdown();
+    return idx;
+  }
+}
+
 const rooms = new Map();
-
-function genCode() {
-  return crypto.randomBytes(3).toString('hex').toUpperCase();
-}
-
-function roomSnapshot(room) {
-  return room.players.map((p, i) => ({ name: p.name, idx: i }));
-}
-
-function broadcast(room, msg) {
-  const data = JSON.stringify(msg);
-  room.players.forEach(p => {
-    if (p.ws.readyState === WebSocket.OPEN) p.ws.send(data);
-  });
-}
-
-function broadcastExcept(room, senderWs, msg) {
-  const data = JSON.stringify(msg);
-  room.players.forEach(p => {
-    if (p.ws !== senderWs && p.ws.readyState === WebSocket.OPEN) p.ws.send(data);
-  });
-}
 
 wss.on('connection', ws => {
   ws.roomCode  = null;
@@ -42,61 +79,52 @@ wss.on('connection', ws => {
       case 'create_room': {
         let code;
         do { code = genCode(); } while (rooms.has(code));
-
-        const room = { players: [{ ws, name: msg.name || 'Jogador 1' }] };
+        const room = new Room();
+        room.players.push({ ws, name: msg.name || 'Jogador 1', sessionId: msg.sessionId, ready: false });
         rooms.set(code, room);
-        ws.roomCode  = code;
-        ws.playerIdx = 0;
-
-        ws.send(JSON.stringify({
-          type: 'room_created',
-          code,
-          playerIdx: 0,
-          players: roomSnapshot(room),
-        }));
+        ws.roomCode = code; ws.playerIdx = 0;
+        room.send(ws, { type: 'room_created', code, playerIdx: 0, players: room.snapshot() });
         break;
       }
 
       case 'join_room': {
         const code = (msg.code || '').toUpperCase();
         const room = rooms.get(code);
-        if (!room) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Sala não encontrada.' }));
-          return;
-        }
-        if (room.players.length >= 4) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Sala cheia (máx. 4 jogadores).' }));
-          return;
-        }
+        if (!room)                  { room?.send(ws, { type: 'error', message: 'Sala não encontrada.' }); ws.send(JSON.stringify({ type: 'error', message: 'Sala não encontrada.' })); return; }
+        if (room.players.length >= 4){ ws.send(JSON.stringify({ type: 'error', message: 'Sala cheia (máx. 4).' })); return; }
         const idx = room.players.length;
-        room.players.push({ ws, name: msg.name || `Jogador ${idx + 1}` });
-        ws.roomCode  = code;
-        ws.playerIdx = idx;
-
-        const players = roomSnapshot(room);
-        // Confirm to new player (include code so client can show lobby)
-        ws.send(JSON.stringify({ type: 'room_joined', playerIdx: idx, players, code }));
-        // Notify everyone (including new player) about updated list
-        broadcast(room, { type: 'player_update', players });
+        room.players.push({ ws, name: msg.name || `Jogador ${idx+1}`, sessionId: msg.sessionId, ready: false });
+        ws.roomCode = code; ws.playerIdx = idx;
+        room.send(ws, { type: 'room_joined', code, playerIdx: idx, players: room.snapshot() });
+        room.broadcast({ type: 'player_update', players: room.snapshot() });
         break;
       }
 
-      case 'start_game': {
+      case 'player_ready': {
         const room = rooms.get(ws.roomCode);
-        if (!room || ws.playerIdx !== 0) return;  // host only
-        if (room.players.length < 2) {
-          ws.send(JSON.stringify({ type: 'error', message: 'São necessários pelo menos 2 jogadores.' }));
-          return;
-        }
-        broadcast(room, { type: 'game_start', players: roomSnapshot(room) });
+        if (!room) return;
+        room.players[ws.playerIdx].ready = !room.players[ws.playerIdx].ready;
+        room.broadcast({ type: 'player_update', players: room.snapshot() });
+        room.checkReady();
+        break;
+      }
+
+      case 'kick_player': {
+        const room = rooms.get(ws.roomCode);
+        if (!room || ws.playerIdx !== 0) return;
+        const target = room.players[msg.targetIdx];
+        if (!target || msg.targetIdx === 0) return;
+        room.send(target.ws, { type: 'kicked' });
+        target.ws.roomCode = null;
+        room.remove(target.ws);
+        room.broadcast({ type: 'player_update', players: room.snapshot() });
         break;
       }
 
       case 'game_action': {
         const room = rooms.get(ws.roomCode);
         if (!room) return;
-        // Relay the action to all OTHER players with sender index
-        broadcastExcept(room, ws, { ...msg, fromIdx: ws.playerIdx });
+        room.broadcastExcept(ws, { ...msg, fromIdx: ws.playerIdx });
         break;
       }
     }
@@ -106,24 +134,10 @@ wss.on('connection', ws => {
     if (!ws.roomCode) return;
     const room = rooms.get(ws.roomCode);
     if (!room) return;
-
-    const leavingIdx = ws.playerIdx;
-    room.players = room.players.filter(p => p.ws !== ws);
-
-    if (room.players.length === 0) {
-      rooms.delete(ws.roomCode);
-      return;
-    }
-
-    // Re-assign indices after removal
-    room.players.forEach((p, i) => { p.ws.playerIdx = i; });
-
-    broadcast(room, {
-      type: 'player_left',
-      disconnectedIdx: leavingIdx,
-      players: roomSnapshot(room),
-    });
+    const leavingIdx = room.remove(ws);
+    if (room.players.length === 0) { rooms.delete(ws.roomCode); return; }
+    room.broadcast({ type: 'player_update', players: room.snapshot(), disconnectedIdx: leavingIdx });
   });
 });
 
-console.log(`Trade Center server running on port ${PORT}`);
+console.log(`Trade Center server on port ${PORT}`);

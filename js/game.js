@@ -41,6 +41,7 @@ function initGame(names) {
   };
   showScreen('game-screen');
   buildBoard();
+  initTokens();
   refreshTokens();
   buildPlayersPanel();
   updateUI();
