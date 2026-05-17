@@ -8,13 +8,13 @@ function genCode() { return crypto.randomBytes(3).toString('hex').toUpperCase();
 
 class Room {
   constructor() {
-    this.players = []; // { ws, name, sessionId, ready }
+    this.players = []; // { ws, name, icon, sessionId, ready }
     this.timer   = null;
   }
 
   snapshot() {
     return this.players.map((p, i) => ({
-      idx: i, name: p.name, sessionId: p.sessionId, ready: p.ready,
+      idx: i, name: p.name, icon: p.icon || '⚔️', sessionId: p.sessionId, ready: p.ready,
     }));
   }
 
@@ -43,7 +43,7 @@ class Room {
     this.broadcast({ type: 'countdown_start', seconds: 5 });
     this.timer = setTimeout(() => {
       this.timer = null;
-      this.broadcast({ type: 'game_start', players: this.snapshot() });
+      this.broadcast({ type: 'game_start', players: this.snapshot(), startIdx: Math.floor(Math.random() * this.players.length) });
     }, 5000);
   }
 
@@ -80,7 +80,7 @@ wss.on('connection', ws => {
         let code;
         do { code = genCode(); } while (rooms.has(code));
         const room = new Room();
-        room.players.push({ ws, name: msg.name || 'Jogador 1', sessionId: msg.sessionId, ready: false });
+        room.players.push({ ws, name: msg.name || 'Jogador 1', icon: msg.icon || '⚔️', sessionId: msg.sessionId, ready: false });
         rooms.set(code, room);
         ws.roomCode = code; ws.playerIdx = 0;
         room.send(ws, { type: 'room_created', code, playerIdx: 0, players: room.snapshot() });
@@ -93,7 +93,7 @@ wss.on('connection', ws => {
         if (!room)                  { room?.send(ws, { type: 'error', message: 'Sala não encontrada.' }); ws.send(JSON.stringify({ type: 'error', message: 'Sala não encontrada.' })); return; }
         if (room.players.length >= 4){ ws.send(JSON.stringify({ type: 'error', message: 'Sala cheia (máx. 4).' })); return; }
         const idx = room.players.length;
-        room.players.push({ ws, name: msg.name || `Jogador ${idx+1}`, sessionId: msg.sessionId, ready: false });
+        room.players.push({ ws, name: msg.name || `Jogador ${idx+1}`, icon: msg.icon || '⚔️', sessionId: msg.sessionId, ready: false });
         ws.roomCode = code; ws.playerIdx = idx;
         room.send(ws, { type: 'room_joined', code, playerIdx: idx, players: room.snapshot() });
         room.broadcast({ type: 'player_update', players: room.snapshot() });

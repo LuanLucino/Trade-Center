@@ -50,7 +50,7 @@ function handleServerMessage(msg) {
 
     case 'game_start':
       cancelLobbyCountdown();
-      startOnlineGame(msg.players);
+      startOnlineGame(msg.players, msg.startIdx || 0);
       break;
 
     case 'countdown_start':

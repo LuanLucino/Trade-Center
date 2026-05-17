@@ -51,21 +51,22 @@ function startLocalGame(numPlayers, names, icons) {
 }
 
 // ── Online game ───────────────────────────────────────────────
-function startOnlineGame(serverPlayers) {
+function startOnlineGame(serverPlayers, startIdx = 0) {
   isOnline = true;
-  initGame(serverPlayers.map(p => p.name), serverPlayers.map(p => p.icon));
+  initGame(serverPlayers.map(p => p.name), serverPlayers.map(p => p.icon), startIdx);
   log(`Você é ${state.players[myIdx].name}. Boa sorte!`, 'system');
 }
 
 // ── Common initializer ────────────────────────────────────────
-function initGame(names, icons = []) {
+function initGame(names, icons = [], startIdx = null) {
+  const firstPlayer = startIdx !== null ? startIdx : Math.floor(Math.random() * names.length);
   state = {
     players: names.map((name, i) => ({
       name, color: PLAYER_COLORS[i],
       icon: icons[i] || VIKING_ICONS[i % VIKING_ICONS.length],
       pos: 0, skipTurns: 0, pendingSteps: 0, finished: false,
     })),
-    current: 0, rolling: false, over: false,
+    current: firstPlayer, rolling: false, over: false,
   };
   showScreen('game-screen');
   initLog();
@@ -144,14 +145,16 @@ async function processTurn(val) {
   log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move', state.current);
 
   const again = await applyMove(state.current, val);
-  state.rolling = false;
 
   if (!state.over) {
     const isMyTurn = !isOnline || myIdx === state.current;
     showOverlayContinue();
     await waitForRollContinue(!isMyTurn);
+    state.rolling = false;
     if (again) updateUI(true);
     else       nextTurn();
+  } else {
+    state.rolling = false;
   }
 }
 
@@ -245,7 +248,7 @@ async function applySpecial(pIdx, sp, landedOn) {
     case 'skip': {
       setOverlayEvent(`⛔ ${sp.desc}`, 'skip');
       log(`⛔ ${p.name}: ${sp.desc}`, 'skip', pIdx);
-      p.skipNext = true;
+      p.skipTurns = 1;
       refreshPlayersPanel();
       return false;
     }
