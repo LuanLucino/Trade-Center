@@ -185,6 +185,10 @@ function showLobby(code, players) {
   document.getElementById('display-room-code').textContent = code;
   updateLobbyPlayers(players);
 
+  const readyBtn = document.getElementById('lobby-ready-btn');
+  readyBtn.style.display = '';
+  readyBtn.onclick = () => sendToServer({ type: 'player_ready' });
+
   document.getElementById('copy-code-btn').onclick = () => {
     navigator.clipboard.writeText(code).catch(() => {});
     const btn = document.getElementById('copy-code-btn');
@@ -217,15 +221,12 @@ function updateLobbyPlayers(players) {
       <div class="lp-info">
         <span class="lp-name">${p.name}</span>
         ${i === 0 ? '<span class="lp-badge host">host</span>' : ''}
-        ${p.ready  ? '<span class="lp-badge ready">✓ pronto</span>' : ''}
+        ${isMe    ? '<span class="lp-badge you">você</span>'  : ''}
+        ${p.ready ? '<span class="lp-badge ready">✓ pronto</span>' : ''}
       </div>`;
 
     let rightHtml = '';
-    if (isMe) {
-      rightHtml = `<button class="btn-ready${p.ready ? ' active' : ''}" onclick="sendToServer({type:'player_ready'})">
-        ${p.ready ? '✓ Pronto' : 'Pronto?'}
-      </button>`;
-    } else if (isHost && i !== 0) {
+    if (isHost && !isMe && i !== 0) {
       rightHtml = `<button class="btn-kick" onclick="sendToServer({type:'kick_player',targetIdx:${i}})" title="Remover jogador">✕</button>`;
     }
 
@@ -239,6 +240,14 @@ function updateLobbyPlayers(players) {
     slot.className = 'lobby-player-card empty-slot';
     slot.innerHTML = `<div class="lp-avatar empty">${i + 1}</div><span class="lp-empty-text">Aguardando...</span>`;
     list.appendChild(slot);
+  }
+
+  // Update standalone ready button
+  const me = players.find(p => p.sessionId === mySessionId);
+  const readyBtn = document.getElementById('lobby-ready-btn');
+  if (readyBtn && me) {
+    readyBtn.textContent = me.ready ? '✓ Pronto!' : 'Marcar como Pronto';
+    readyBtn.className = 'btn-ready-main' + (me.ready ? ' active' : '');
   }
 
   const allReady = players.length >= 2 && players.every(p => p.ready);

@@ -79,7 +79,7 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .mode-text  { display: flex; flex-direction: column; }
 
 /* ── Local setup ── */
-#setup-screen .card { width: 420px; }
+#setup-screen .card { max-width: 420px; width: 100%; }
 .form-group       { margin-bottom: 20px; text-align: left; }
 .form-group label {
   display: block; margin-bottom: 9px;
@@ -100,21 +100,21 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .player-color-dot   { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
 
 /* ── Online config ── */
-#online-screen .card { width: 440px; }
+#online-screen .card { max-width: 440px; width: 100%; }
 .online-section       { margin-bottom: 16px; text-align: left; }
 .online-section label { display: block; margin-bottom: 7px; color: #4a5a7a; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.1px; }
 .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: #2a3a5a; font-size: 0.8rem; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #1e2e50; }
-.join-row           { display: flex; gap: 8px; }
-.join-row input     { flex: 1; }
-.join-row .btn-join { width: auto; flex-shrink: 0; padding: 10px 18px; margin-top: 0; font-size: 0.85rem; }
+.join-row           { display: flex; gap: 8px; align-items: stretch; }
+.join-row input     { flex: 1; min-width: 0; }
+.join-row .btn-primary { width: auto; flex-shrink: 0; padding: 10px 18px; margin-top: 0; font-size: 0.85rem; }
 .online-status      { font-size: 0.8rem; color: #4a5a7a; margin-top: 8px; min-height: 1.2em; }
 .online-status.error { color: #e74c3c; }
 
 /* ── Lobby ── */
 #lobby-screen.active { position: relative; flex-direction: column; }
 
-.lobby-card { width: 480px; padding: 36px 36px 28px; }
+.lobby-card { max-width: 480px; width: 100%; padding: 36px 36px 28px; }
 
 .lobby-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -168,16 +168,8 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
   border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .lp-badge.host  { background: rgba(240,192,64,0.15); color: #f0c040; border: 1px solid rgba(240,192,64,0.3); }
-.lp-badge.ready { background: rgba(39,174,96,0.15);  color: #27ae60; border: 1px solid rgba(39,174,96,0.3); }
-
-.btn-ready {
-  padding: 5px 13px; border-radius: 8px;
-  border: 1.5px solid #2a4a6a; background: transparent;
-  color: #8090b0; font-size: 0.78rem; cursor: pointer;
-  transition: all 0.18s; white-space: nowrap;
-}
-.btn-ready:hover         { border-color: #27ae60; color: #27ae60; }
-.btn-ready.active        { background: rgba(39,174,96,0.15); border-color: #27ae60; color: #27ae60; font-weight: 700; }
+.lp-badge.you   { background: rgba(52,152,219,0.15);  color: #3498db; border: 1px solid rgba(52,152,219,0.3); }
+.lp-badge.ready { background: rgba(39,174,96,0.15);   color: #27ae60; border: 1px solid rgba(39,174,96,0.3); }
 
 .btn-kick {
   width: 28px; height: 28px; border-radius: 7px;
@@ -188,6 +180,32 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .btn-kick:hover { background: rgba(192,57,43,0.15); border-color: #c0392b; }
 
 .lobby-hint { font-size: 0.78rem; color: #4a5a7a; text-align: center; margin: 12px 0 4px; min-height: 1.3em; }
+
+/* Botão de pronto dedicado (visível para todos os jogadores) */
+.btn-ready-main {
+  display: block; width: 100%; padding: 12px 18px;
+  background: rgba(39,174,96,0.08);
+  color: #27ae60; border: 1.5px solid rgba(39,174,96,0.4);
+  border-radius: 12px; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; margin-top: 10px; letter-spacing: 0.3px;
+  transition: all 0.2s;
+}
+.btn-ready-main:hover  { background: rgba(39,174,96,0.16); border-color: #27ae60; }
+.btn-ready-main.active {
+  background: rgba(39,174,96,0.2); border-color: #27ae60;
+  box-shadow: 0 0 14px rgba(39,174,96,0.25);
+  color: #2ecc71;
+}
+
+/* Botão de sair — sempre visível para todos */
+.btn-leave {
+  display: block; width: 100%; padding: 11px 18px;
+  background: transparent; color: #c0392b;
+  border: 1.5px solid rgba(192,57,43,0.35); border-radius: 12px;
+  font-size: 0.88rem; cursor: pointer; margin-top: 8px;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+.btn-leave:hover { border-color: #c0392b; background: rgba(192,57,43,0.08); }
 
 /* Countdown overlay */
 #lobby-countdown {
@@ -341,8 +359,14 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
   .sidebar-title   { display: none; }
 }
 
+@media (max-width: 560px) {
+  .join-row { flex-direction: column; }
+  .join-row .btn-primary { width: 100%; margin-top: 8px; }
+}
+
 @media (max-width: 480px) {
-  .card            { padding: 28px 20px; border-radius: 16px; }
-  .lobby-card      { width: 100%; max-width: 100%; margin: 0 12px; }
-  #mode-screen .card { width: 100%; max-width: 340px; }
+  .card              { padding: 28px 20px; border-radius: 16px; }
+  .lobby-card        { padding: 24px 18px 20px; margin: 0 12px; }
+  #mode-screen .card { max-width: 340px; }
+  #display-room-code { font-size: 1.25rem; letter-spacing: 3px; }
 }
