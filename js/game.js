@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   document.getElementById('play-again-btn').addEventListener('click', () => {
+    stopBgMusic();
     isOnline = false;
     myIdx    = null;
     if (socket) { socket.close(); socket = null; }
@@ -77,6 +78,7 @@ function initGame(names, icons = [], startIdx = null) {
   buildPlayersPanel();
   setDiceFace(6);
   updateUI();
+  startBgMusic();
   log(`Jogo iniciado! ${names.join(', ')} — Boa sorte!`, 'system');
 }
 
