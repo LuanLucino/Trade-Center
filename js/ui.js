@@ -202,7 +202,9 @@ function showLobby(code, players, isHost) {
   const startBtn = document.getElementById('btn-start-online');
   startBtn.style.display = isHost ? 'block' : 'none';
   startBtn.onclick = () => {
-    if (players.length < 2) {
+    // Count from DOM so we always have the current number, not a stale closure
+    const filled = document.querySelectorAll('.lobby-slot.filled').length;
+    if (filled < 2) {
       alert('Aguarde pelo menos 2 jogadores.');
       return;
     }

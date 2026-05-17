@@ -74,8 +74,8 @@ wss.on('connection', ws => {
         ws.playerIdx = idx;
 
         const players = roomSnapshot(room);
-        // Confirm to new player
-        ws.send(JSON.stringify({ type: 'room_joined', playerIdx: idx, players }));
+        // Confirm to new player (include code so client can show lobby)
+        ws.send(JSON.stringify({ type: 'room_joined', playerIdx: idx, players, code }));
         // Notify everyone (including new player) about updated list
         broadcast(room, { type: 'player_update', players });
         break;

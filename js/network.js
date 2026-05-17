@@ -55,7 +55,7 @@ function handleServerMessage(msg) {
 
     case 'room_joined':
       myIdx = msg.playerIdx;
-      updateLobbyPlayers(msg.players);
+      showLobby(msg.code, msg.players, false);
       break;
 
     case 'player_update':
