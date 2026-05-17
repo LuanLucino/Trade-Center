@@ -148,7 +148,11 @@ async function applySpecial(pIdx, sp, landedOn) {
   const p = state.players[pIdx];
   await delay(200);
 
-  playSound(sp.type);
+  if (SQUARE_SOUNDS[landedOn]) {
+    playSquareSound(SQUARE_SOUNDS[landedOn]);
+  } else {
+    playSound(sp.type);
+  }
   spawnParticles(landedOn, SPECIAL_COLORS[sp.type] || '#f0c040');
 
   switch (sp.type) {

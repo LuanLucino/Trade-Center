@@ -84,6 +84,16 @@ function playSound(type) {
   } catch(e) {}
 }
 
+// Play a real audio file (for square-specific sounds)
+function playSquareSound(url) {
+  if (_muted) return;
+  try {
+    const audio = new Audio(url);
+    audio.volume = 0.85;
+    audio.play().catch(() => {});
+  } catch(e) {}
+}
+
 function toggleMute() {
   _muted = !_muted;
   localStorage.setItem('tc_muted', _muted ? '1' : '0');

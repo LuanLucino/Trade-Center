@@ -30,6 +30,11 @@ const BD = (() => {
   };
 })();
 
+// Custom audio files per square index (path relative to project root)
+const SQUARE_SOUNDS = {
+  11: 'sounds/house11.wav',
+};
+
 // WebSocket server URL.
 // In the online screen the user can override this via the URL input.
 const DEFAULT_WS_URL = 'wss://resample-iron-blank.ngrok-free.dev';
