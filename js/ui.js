@@ -140,17 +140,38 @@ function refreshPlayersPanel() {
   });
 }
 
+// ── Turn toast ───────────────────────────────────────────────
+let _toastTimer = null;
+
+function showTurnToast(playerName, playerColor) {
+  const toast = document.getElementById('turn-toast');
+  if (!toast) return;
+  toast.textContent   = `🎲 Vez de ${playerName}!`;
+  toast.style.background  = playerColor;
+  toast.style.boxShadow   = `0 6px 24px ${playerColor}88`;
+  toast.classList.remove('show');
+  clearTimeout(_toastTimer);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    toast.classList.add('show');
+    _toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+  }));
+}
+
 // ── Roll button / turn label ─────────────────────────────────
 function updateUI(rollAgain = false) {
   refreshPlayersPanel();
   if (state.over) return;
-  const p       = state.players[state.current];
-  const btn     = document.getElementById('roll-btn');
+  const p        = state.players[state.current];
+  const btn      = document.getElementById('roll-btn');
   const isMyTurn = !isOnline || myIdx === state.current;
-  btn.disabled = !isMyTurn;
+  btn.disabled   = !isMyTurn;
   btn.textContent = isMyTurn
     ? (rollAgain ? '🎲 Rolar de Novo!' : '🎲 Rolar Dado')
     : `⏳ Vez de ${p.name}...`;
+
+  document.getElementById('dice-area').classList.toggle('my-turn', isMyTurn);
+
+  if (isMyTurn && !rollAgain) showTurnToast(p.name, p.color);
 }
 
 // ── Mode screen ──────────────────────────────────────────────
