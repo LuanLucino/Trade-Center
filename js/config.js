@@ -20,7 +20,7 @@ const SPECIALS = {
 
 // Board visual dimensions — derived once, shared by board.js
 const BD = (() => {
-  const w=900, h=480, padX=70, padY=80, sqSz=72, rows=4, cols=10;
+  const w=900, h=560, padX=70, padY=88, sqSz=72, rows=4, cols=10;
   const xStep = (w - 2*padX) / (cols - 1);
   const yStep = (h - 2*padY) / (rows - 1);
   return {

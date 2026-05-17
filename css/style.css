@@ -255,7 +255,7 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 #board-wrapper {
   flex: 1; min-width: 0; overflow: hidden; padding: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 #board { position: relative; overflow: visible; flex-shrink: 0; }
 
@@ -333,16 +333,21 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 
 /* ── Sidebar ── */
 #sidebar {
-  width: 244px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;
+  width: 244px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
+  background: linear-gradient(180deg, rgba(20,17,8,0.88), rgba(12,10,4,0.92));
+  border: 1px solid rgba(180,140,50,0.22);
+  border-radius: 16px;
+  padding: 12px;
   overflow-y: auto; scrollbar-width: none;
 }
 #sidebar::-webkit-scrollbar { display: none; }
-.sidebar-title { font-size: 1.2rem; color: #f0c040; text-align: center; padding: 4px 0; text-shadow: 0 0 12px rgba(240,192,64,0.4); }
+.sidebar-title { font-size: 1.1rem; color: #f0c040; text-align: center; padding: 2px 0 4px; text-shadow: 0 0 12px rgba(240,192,64,0.4); flex-shrink: 0; }
 
 #players-panel {
-  background: linear-gradient(145deg, rgba(28,24,12,0.94), rgba(16,13,6,0.96));
-  border: 1px solid rgba(180,140,50,0.2);
-  border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 7px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(180,140,50,0.18);
+  border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 7px;
+  flex-shrink: 0;
 }
 
 .player-card {
@@ -367,9 +372,10 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 .you-badge { display: inline-block; font-size: 0.56rem; font-weight: 700; background: rgba(240,192,64,0.15); color: #f0c040; padding: 1px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
 
 #dice-area {
-  background: linear-gradient(145deg, rgba(28,24,12,0.94), rgba(16,13,6,0.96));
-  border: 1px solid rgba(180,140,50,0.2);
-  border-radius: 14px; padding: 14px; text-align: center; position: relative;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(180,140,50,0.18);
+  border-radius: 12px; padding: 14px; text-align: center; position: relative;
+  flex-shrink: 0;
 }
 
 #mute-btn {
@@ -423,12 +429,13 @@ input:focus { border-color: #f0c040; box-shadow: 0 0 0 3px rgba(240,192,64,0.12)
 }
 
 #log-area {
-  background: linear-gradient(145deg, rgba(28,24,12,0.94), rgba(16,13,6,0.96));
-  border: 1px solid rgba(180,140,50,0.2);
-  border-radius: 14px; padding: 12px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(180,140,50,0.18);
+  border-radius: 12px; padding: 12px;
+  flex: 1; display: flex; flex-direction: column;
 }
-#log-area h3 { color: #4a4530; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 9px; }
-#game-log    { display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
+#log-area h3 { color: #4a4530; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 9px; flex-shrink: 0; }
+#game-log    { display: flex; flex-direction: column; gap: 5px; overflow: hidden; flex: 1; }
 .log-entry   {
   font-size: 0.73rem; padding: 5px 8px; border-radius: 6px;
   background: rgba(255,255,255,0.02); line-height: 1.4;
