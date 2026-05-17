@@ -21,6 +21,15 @@ const SPECIALS = {
   43: { type: 'penalty',   value: -5, icon: '💸', label: '-5',   desc: 'Armadilha! Volta 5 casas.' },
   45: { type: 'skip',      value:  0, icon: '⛔', label: 'STOP', desc: 'Bloqueio! Perde a vez.' },
   47: { type: 'rollagain', value:  0, icon: '🎲', label: '+🎲',  desc: 'Última chance! Role de novo.' },
+  // ── Novas mecânicas
+   6: { type: 'waterpark',   value:  1, icon: '🌊', label: '→1',    desc: 'Tobogã! Deslize de volta à casa 1!' },
+  13: { type: 'tunnelvision',value:  0, icon: '🌑', label: 'TÚNEL', desc: 'Visão no Fim do Túnel! Escolha 1 passo.' },
+  16: { type: 'escalada',    value: 20, icon: '🧗', label: 'CLIMB', desc: 'A Escalada! Fuja do ogro ou caia no covil!' },
+  20: { type: 'covil',       value: -3, icon: '👹', label: 'COVIL', desc: 'Covil do Ogro! Massagem com rolo de massa. -3.' },
+  23: { type: 'cordabamba',  value:  3, icon: '🎪', label: 'CORDA', desc: 'Corda Bamba! Atravesse ou jogue o dado.' },
+  25: { type: 'castle',      value:  4, icon: '🏰', label: '4×⛔',  desc: 'Castelo do Rei! Soldados te prendem por 4 rodadas.' },
+  31: { type: 'vaievolta',   value:  0, icon: '↩️',  label: 'V&V',   desc: 'Vai e Volta! Recua 1 e passa 3 vezes pelo mesmo lugar.' },
+  36: { type: 'luckbox',     value:  0, icon: '🎴', label: 'LUCK',  desc: 'Luck Box! 6 cartas secretas — sorte ou azar?' },
 };
 
 // Board visual dimensions — derived once, shared by board.js

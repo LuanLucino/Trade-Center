@@ -125,6 +125,45 @@ function closeRollOverlay() {
   document.getElementById('roll-overlay').classList.remove('visible');
 }
 
+function setOverlayDarkMode(on) {
+  document.getElementById('roll-overlay').classList.toggle('dark-mode', on);
+}
+
+function showOverlayChoices(labelA, labelB) {
+  return new Promise(resolve => {
+    const div  = document.getElementById('roc-choices');
+    const btnA = document.getElementById('roc-choice-a');
+    const btnB = document.getElementById('roc-choice-b');
+    btnA.textContent = labelA;
+    btnB.textContent = labelB;
+    const pick = key => { div.style.display = 'none'; btnA.onclick = null; btnB.onclick = null; resolve(key); };
+    btnA.onclick = () => pick('a');
+    btnB.onclick = () => pick('b');
+    div.style.display = '';
+  });
+}
+
+function showOverlayCards(cards) {
+  return new Promise(resolve => {
+    const container = document.getElementById('roc-cards');
+    container.innerHTML = '';
+    container.style.display = '';
+    cards.forEach(card => {
+      const btn = document.createElement('button');
+      btn.className = 'roc-card-btn';
+      btn.textContent = '?';
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.roc-card-btn').forEach(b => { b.disabled = true; b.style.opacity = '0.35'; });
+        btn.style.opacity = '1';
+        btn.textContent = card.icon;
+        btn.classList.add('revealed', card.good ? 'card-good' : 'card-bad');
+        setTimeout(() => { container.style.display = 'none'; resolve(card); }, 900);
+      }, { once: true });
+      container.appendChild(btn);
+    });
+  });
+}
+
 function waitForRollContinue(autoClose = false) {
   return new Promise(resolve => {
     let done = false;
@@ -166,11 +205,11 @@ function refreshPlayersPanel() {
     card.className = 'player-card' +
       (i === state.current && !state.over ? ' active-turn'     : '') +
       (p.finished                          ? ' finished-player' : '') +
-      (p.skipNext                          ? ' skip-player'     : '');
+      (p.skipTurns > 0                     ? ' skip-player'     : '');
     document.getElementById(`pp-${i}`).textContent = `Casa ${p.pos} / ${BOARD_SIZE - 1}`;
     const st = document.getElementById(`ps-${i}`);
     if      (p.finished)                              st.textContent = '✅ Chegou!';
-    else if (p.skipNext)                              st.textContent = '⏸ Vai pular vez';
+    else if (p.skipTurns > 0)                         st.textContent = p.skipTurns > 1 ? `🏰 Preso (${p.skipTurns})` : '⏸ Vai pular vez';
     else if (i === state.current && !state.over)      st.textContent = '← Jogando...';
     else                                              st.textContent = '';
   });
