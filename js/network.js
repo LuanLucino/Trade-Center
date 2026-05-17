@@ -90,20 +90,22 @@ function handleServerMessage(msg) {
 async function applyRemoteAction(msg) {
   if (state.over || state.rolling) return;
   state.rolling = true;
-
-  const p = state.players[state.current];
-  if (msg.action === 'skip') {
-    p.skipTurns = 0;
-    openRollOverlay(p.name, p.color, p.icon);
-    await delay(300);
-    setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
-    log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);
-    playSound('skip');
-    showOverlayContinue();
-    await waitForRollContinue(true);
+  try {
+    const p = state.players[state.current];
+    if (msg.action === 'skip') {
+      p.skipTurns = 0;
+      openRollOverlay(p.name, p.color, p.icon);
+      await delay(300);
+      setOverlayEvent(`⏸ ${p.name} perdeu a vez!`, 'skip');
+      log(`⏸ ${p.name} perdeu a vez!`, 'skip', state.current);
+      playSound('skip');
+      showOverlayContinue();
+      await waitForRollContinue(true);
+      nextTurn();
+      return;
+    }
+    if (msg.action === 'roll') await processTurn(msg.value);
+  } finally {
     state.rolling = false;
-    nextTurn();
-    return;
   }
-  if (msg.action === 'roll') await processTurn(msg.value);
 }

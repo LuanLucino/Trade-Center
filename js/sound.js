@@ -133,8 +133,9 @@ function toggleMute() {
 let _bgGain      = null;
 let _bgActive    = false;
 let _bgNodes     = [];
+let _bgDucking   = false;
 let _bgDuckTimer = null;
-const _BG_VOL    = 0.20;
+let _bgVolume    = parseFloat(localStorage.getItem('tc_bg_volume') || '0.20');
 const _BG_DUCKED = 0.04;
 
 function startBgMusic() {
@@ -143,9 +144,18 @@ function startBgMusic() {
   const ctx = _ctx();
   if (ctx.state === 'suspended') ctx.resume();
   _bgGain = ctx.createGain();
-  _bgGain.gain.value = _BG_VOL;
+  _bgGain.gain.value = _bgVolume;
   _bgGain.connect(_masterGain);
   _bgLoop(ctx, ctx.currentTime + 0.3);
+}
+
+function setBgVolume(v) {
+  _bgVolume = v;
+  localStorage.setItem('tc_bg_volume', v);
+  if (_bgGain && !_bgDucking) {
+    _bgGain.gain.cancelScheduledValues(_ctx().currentTime);
+    _bgGain.gain.setTargetAtTime(_bgVolume, _ctx().currentTime, 0.1);
+  }
 }
 
 function stopBgMusic() {
@@ -158,6 +168,7 @@ function stopBgMusic() {
 
 function duckBgMusic() {
   if (!_bgGain) return;
+  _bgDucking = true;
   clearTimeout(_bgDuckTimer);
   const ctx = _ctx();
   _bgGain.gain.cancelScheduledValues(ctx.currentTime);
@@ -168,10 +179,11 @@ function unduckBgMusic(ms = 1800) {
   if (!_bgGain) return;
   clearTimeout(_bgDuckTimer);
   _bgDuckTimer = setTimeout(() => {
+    _bgDucking = false;
     if (!_bgGain) return;
     const ctx = _ctx();
     _bgGain.gain.cancelScheduledValues(ctx.currentTime);
-    _bgGain.gain.setTargetAtTime(_BG_VOL, ctx.currentTime, 0.5);
+    _bgGain.gain.setTargetAtTime(_bgVolume, ctx.currentTime, 0.5);
   }, ms);
 }
 

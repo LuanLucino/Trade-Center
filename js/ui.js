@@ -81,13 +81,18 @@ function animateDice(final) {
       if (++ticks >= 12) clearInterval(id);
     }, 58);
 
-    box.classList.add('rolling');
-    box.addEventListener('animationend', () => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       box.classList.remove('rolling');
       setDiceFace(final, '#roc-dice');
       setDiceFace(final, '#dice');
       resolve();
-    }, { once: true });
+    };
+    box.classList.add('rolling');
+    box.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 1200); // fallback: animationend pode não disparar
   });
 }
 
@@ -136,9 +141,18 @@ function showOverlayChoices(labelA, labelB) {
     const btnB = document.getElementById('roc-choice-b');
     btnA.textContent = labelA;
     btnB.textContent = labelB;
-    const pick = key => { div.style.display = 'none'; btnA.onclick = null; btnB.onclick = null; resolve(key); };
+    let done = false;
+    const pick = key => {
+      if (done) return;
+      done = true;
+      clearTimeout(autoTimer);
+      div.style.display = 'none';
+      btnA.onclick = null; btnB.onclick = null;
+      resolve(key);
+    };
     btnA.onclick = () => pick('a');
     btnB.onclick = () => pick('b');
+    const autoTimer = setTimeout(() => pick(Math.random() < 0.5 ? 'a' : 'b'), 15000);
     div.style.display = '';
   });
 }
@@ -148,11 +162,21 @@ function showOverlayCards(cards) {
     const container = document.getElementById('roc-cards');
     container.innerHTML = '';
     container.style.display = '';
+    let picked = false;
+    const autoPick = setTimeout(() => {
+      if (picked) return;
+      picked = true;
+      container.style.display = 'none';
+      resolve(cards[Math.floor(Math.random() * cards.length)]);
+    }, 15000);
     cards.forEach(card => {
       const btn = document.createElement('button');
       btn.className = 'roc-card-btn';
       btn.textContent = '?';
       btn.addEventListener('click', () => {
+        if (picked) return;
+        picked = true;
+        clearTimeout(autoPick);
         container.querySelectorAll('.roc-card-btn').forEach(b => { b.disabled = true; b.style.opacity = '0.35'; });
         btn.style.opacity = '1';
         btn.textContent = card.icon;

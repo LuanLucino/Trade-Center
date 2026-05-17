@@ -32,6 +32,26 @@ document.addEventListener('DOMContentLoaded', () => {
       updateSlider();
     });
   }
+  // Music volume slider
+  const musicSlider = document.getElementById('music-slider');
+  const musicPct    = document.getElementById('music-pct');
+  if (musicSlider) {
+    const smv = parseFloat(localStorage.getItem('tc_bg_volume') || '0.20');
+    musicSlider.value = Math.round(smv * 100);
+    if (musicPct) musicPct.textContent = Math.round(smv * 100) + '%';
+    const updateMusicSlider = () => {
+      const pct = (musicSlider.value / musicSlider.max) * 100;
+      musicSlider.style.background = `linear-gradient(to right,#4a90e2 0%,#4a90e2 ${pct}%,#2e2a16 ${pct}%,#2e2a16 100%)`;
+    };
+    updateMusicSlider();
+    musicSlider.addEventListener('input', () => {
+      const v = parseInt(musicSlider.value) / 100;
+      if (musicPct) musicPct.textContent = musicSlider.value + '%';
+      setBgVolume(v);
+      updateMusicSlider();
+    });
+  }
+
   document.getElementById('play-again-btn').addEventListener('click', () => {
     stopBgMusic();
     isOnline = false;
@@ -149,24 +169,25 @@ async function onRoll() {
 
 // processTurn is shared between local and remote-action paths.
 async function processTurn(val) {
-  const p = state.players[state.current];
-  openRollOverlay(p.name, p.color, p.icon);
+  try {
+    const p = state.players[state.current];
+    openRollOverlay(p.name, p.color, p.icon);
 
-  await animateDice(val);
+    await animateDice(val);
 
-  showOverlayRollValue(val);
-  log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move', state.current);
+    showOverlayRollValue(val);
+    log(`${p.name} tirou ${DICE_FACES[val-1]} (${val})`, 'move', state.current);
 
-  const again = await applyMove(state.current, val);
+    const again = await applyMove(state.current, val);
 
-  if (!state.over) {
-    const isMyTurn = !isOnline || myIdx === state.current;
-    showOverlayContinue();
-    await waitForRollContinue(!isMyTurn);
-    state.rolling = false;
-    if (again) updateUI(true);
-    else       nextTurn();
-  } else {
+    if (!state.over) {
+      const isMyTurn = !isOnline || myIdx === state.current;
+      showOverlayContinue();
+      await waitForRollContinue(!isMyTurn);
+      if (again) updateUI(true);
+      else       nextTurn();
+    }
+  } finally {
     state.rolling = false;
   }
 }
