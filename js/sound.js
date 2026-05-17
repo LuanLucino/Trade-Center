@@ -134,7 +134,7 @@ let _bgGain      = null;
 let _bgActive    = false;
 let _bgNodes     = [];
 let _bgDuckTimer = null;
-const _BG_VOL    = 0.28;
+const _BG_VOL    = 0.20;
 const _BG_DUCKED = 0.04;
 
 function startBgMusic() {
