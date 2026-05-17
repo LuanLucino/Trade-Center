@@ -285,7 +285,11 @@ function initLocalSetup() {
   document.getElementById('start-local-btn').addEventListener('click', () => {
     const groups = [...document.querySelectorAll('#player-names-section .player-input-group')];
     const names  = groups.map((g, i) => { const inp = g.querySelector('input'); return inp.value.trim() || inp.placeholder; });
-    const icons  = groups.map(g => g.querySelector('.icon-pick-btn.selected')?.dataset.icon || VIKING_ICONS[0]);
+    const icons  = groups.map(g => {
+      const btns = [...g.querySelectorAll('.icon-pick-btn')];
+      const idx  = btns.findIndex(b => b.classList.contains('selected'));
+      return VIKING_ICONS[idx >= 0 ? idx : 0];
+    });
     startLocalGame(count, names, icons);
   });
 

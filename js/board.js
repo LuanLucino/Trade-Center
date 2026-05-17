@@ -183,7 +183,7 @@ function refreshTokens() {
     byPos[pos].push(i);
   });
 
-  const size = 28;
+  const size = 40;
   state.players.forEach((p, i) => {
     const tok = document.getElementById(`btoken-${i}`);
     if (!tok) return;

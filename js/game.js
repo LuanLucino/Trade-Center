@@ -12,6 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) { btn.textContent = '🔇'; btn.classList.add('muted'); }
   }
   document.getElementById('roll-btn').addEventListener('click', onRoll);
+
+  // Volume slider
+  const volSlider = document.getElementById('volume-slider');
+  const volPct    = document.getElementById('vol-pct');
+  if (volSlider) {
+    const sv = parseFloat(localStorage.getItem('tc_volume') || '1');
+    volSlider.value = Math.round(sv * 100);
+    if (volPct) volPct.textContent = Math.round(sv * 100) + '%';
+    const updateSlider = () => {
+      const pct = (volSlider.value / volSlider.max) * 100;
+      volSlider.style.background = `linear-gradient(to right,#f0c040 0%,#f0c040 ${pct}%,#2e2a16 ${pct}%,#2e2a16 100%)`;
+    };
+    updateSlider();
+    volSlider.addEventListener('input', () => {
+      const v = parseInt(volSlider.value) / 100;
+      if (volPct) volPct.textContent = volSlider.value + '%';
+      setMasterVolume(v);
+      updateSlider();
+    });
+  }
   document.getElementById('play-again-btn').addEventListener('click', () => {
     isOnline = false;
     myIdx    = null;
@@ -163,6 +183,7 @@ async function applyMove(pIdx, steps) {
 const SPECIAL_COLORS = {
   bonus: '#27ae60', penalty: '#e74c3c', teleport: '#8e44ad',
   skip: '#d68910', rollagain: '#3498db',
+  amusement: '#cc2200',
   waterpark: '#0077cc', tunnelvision: '#222266', escalada: '#3d6b20',
   covil: '#8b2a00', cordabamba: '#8b5e00', castle: '#660099',
   vaievolta: '#1a3d99', luckbox: '#993300',
@@ -232,6 +253,15 @@ async function applySpecial(pIdx, sp, landedOn) {
       setOverlayEvent(`🎲 ${sp.desc}`, 'rollagain');
       log(`🎲 ${p.name}: ${sp.desc}`, 'rollagain', pIdx);
       return true;
+    }
+    case 'amusement': {
+      setOverlayEvent(`🎢 ${sp.desc}`, 'amusement');
+      log(`🎢 ${p.name}: ${sp.desc}`, 'amusement', pIdx);
+      p.pos = sp.value;
+      refreshTokens(); refreshPlayersPanel();
+      await delay(350);
+      triggerTokenLand(pIdx); highlightSquare(p.pos);
+      return false;
     }
     case 'waterpark': {
       setOverlayEvent(`🌊 ${sp.desc}`, 'waterpark');

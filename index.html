@@ -140,6 +140,7 @@
           <div class="legend-item"><span class="leg-color" style="background:#1e1408;border-color:#8b5e00"></span> Corda Bamba</div>
           <div class="legend-item"><span class="leg-color" style="background:#140828;border-color:#660099"></span> Castelo do Rei</div>
           <div class="legend-item"><span class="leg-color" style="background:#080e1e;border-color:#1a3d99"></span> Vai e Volta</div>
+          <div class="legend-item"><span class="leg-color" style="background:#2a0a0a;border-color:#cc2200"></span> Parque Diversão</div>
           <div class="legend-item"><span class="leg-color" style="background:#1e100a;border-color:#993300"></span> Luck Box</div>
         </div>
       </div>
@@ -151,6 +152,11 @@
 
         <div id="dice-area">
           <button id="mute-btn" class="btn-mute" title="Silenciar sons" onclick="toggleMute()">🔊</button>
+          <div class="volume-row">
+            <span class="vol-icon">🔈</span>
+            <input type="range" id="volume-slider" min="0" max="200" value="100" class="volume-slider">
+            <span id="vol-pct" class="vol-pct">100%</span>
+          </div>
           <div id="dice">
             <div class="dice-dot-grid">
               <span></span><span></span><span></span>

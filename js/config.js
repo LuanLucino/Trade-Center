@@ -22,6 +22,7 @@ const SPECIALS = {
   45: { type: 'skip',      value:  0, icon: '⛔', label: 'STOP', desc: 'Bloqueio! Perde a vez.' },
   47: { type: 'rollagain', value:  0, icon: '🎲', label: '+🎲',  desc: 'Última chance! Role de novo.' },
   // ── Novas mecânicas
+   2: { type: 'amusement',   value:  6, icon: '🎢', label: '→6',    desc: 'Montanha-russa! Vai direto à casa 6!' },
    6: { type: 'waterpark',   value:  1, icon: '🌊', label: '→1',    desc: 'Tobogã! Deslize de volta à casa 1!' },
   13: { type: 'tunnelvision',value:  0, icon: '🌑', label: 'TÚNEL', desc: 'Visão no Fim do Túnel! Escolha 1 passo.' },
   16: { type: 'escalada',    value: 20, icon: '🧗', label: 'CLIMB', desc: 'A Escalada! Fuja do ogro ou caia no covil!' },
