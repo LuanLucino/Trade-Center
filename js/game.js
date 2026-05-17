@@ -44,6 +44,7 @@ function initGame(names) {
   initTokens();
   refreshTokens();
   buildPlayersPanel();
+  setDiceFace(6);
   updateUI();
   log(`Jogo iniciado! ${names.join(', ')} — Boa sorte!`, 'system');
 }

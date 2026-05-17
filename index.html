@@ -111,6 +111,7 @@
         <span id="cd-number">5</span>
       </div>
       <p>Jogo iniciando...</p>
+      <button id="btn-cancel-ready">✕ Cancelar Pronto</button>
     </div>
   </div>
 
@@ -136,7 +137,13 @@
         <div id="players-panel"></div>
 
         <div id="dice-area">
-          <div id="dice"><span id="dice-face">?</span></div>
+          <div id="dice">
+            <div class="dice-dot-grid">
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+            </div>
+          </div>
           <button id="roll-btn" class="btn-primary">🎲 Rolar Dado</button>
         </div>
 

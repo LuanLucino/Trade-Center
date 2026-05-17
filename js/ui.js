@@ -18,22 +18,39 @@ function log(msg, type = 'system') {
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// ── Dice dots ────────────────────────────────────────────────
+// 3×3 grid positions: top-left … bottom-right
+const DOT_PATTERNS = {
+  1: [0,0,0, 0,1,0, 0,0,0],
+  2: [1,0,0, 0,0,0, 0,0,1],
+  3: [1,0,0, 0,1,0, 0,0,1],
+  4: [1,0,1, 0,0,0, 1,0,1],
+  5: [1,0,1, 0,1,0, 1,0,1],
+  6: [1,0,1, 1,0,1, 1,0,1],
+};
+
+function setDiceFace(val) {
+  const cells = document.querySelectorAll('#dice .dice-dot-grid span');
+  const pat   = DOT_PATTERNS[val] || DOT_PATTERNS[1];
+  cells.forEach((c, i) => c.classList.toggle('dot', !!pat[i]));
+}
+
 // ── Dice animation ───────────────────────────────────────────
 function animateDice(final) {
   return new Promise(resolve => {
-    const face = document.getElementById('dice-face');
-    const box  = document.getElementById('dice');
-    box.classList.add('rolling');
+    const box = document.getElementById('dice');
     let ticks = 0;
     const id = setInterval(() => {
-      face.textContent = DICE_FACES[Math.floor(Math.random() * 6)];
-      if (++ticks >= 9) {
-        clearInterval(id);
-        face.textContent = DICE_FACES[final - 1];
-        box.classList.remove('rolling');
-        resolve();
-      }
-    }, 75);
+      setDiceFace(Math.floor(Math.random() * 6) + 1);
+      if (++ticks >= 10) clearInterval(id);
+    }, 64);
+
+    box.classList.add('rolling');
+    box.addEventListener('animationend', () => {
+      box.classList.remove('rolling');
+      setDiceFace(final);
+      resolve();
+    }, { once: true });
   });
 }
 
@@ -195,11 +212,15 @@ function showLobby(code, players) {
     readyBtn.classList.toggle('active', nowReady);
   };
 
-  // Event delegation para botões de kick (evita problemas com onclick inline)
+  // Event delegation para botões de kick
   document.getElementById('lobby-player-list').onclick = e => {
     const btn = e.target.closest('.btn-kick');
     if (btn) sendToServer({ type: 'kick_player', targetIdx: +btn.dataset.idx });
   };
+
+  // Botão cancelar pronto dentro do overlay de contagem regressiva
+  const cancelReadyBtn = document.getElementById('btn-cancel-ready');
+  if (cancelReadyBtn) cancelReadyBtn.onclick = () => sendToServer({ type: 'player_ready' });
 
   document.getElementById('copy-code-btn').onclick = () => {
     navigator.clipboard.writeText(code).catch(() => {});
